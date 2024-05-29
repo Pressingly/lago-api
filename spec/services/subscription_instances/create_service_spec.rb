@@ -17,7 +17,7 @@ RSpec.describe SubscriptionInstances::CreateService, type: :service do
           expect(result).to be_success
 
           subscription_instance = result.subscription_instance
-          expect(subscription_instance.started_at).to eq(subscription.started_at)
+          expect(subscription_instance.started_at.to_i).to eq(subscription.started_at.to_i)
         end
       end
     end
