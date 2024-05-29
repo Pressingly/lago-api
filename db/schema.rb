@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_05_02_095122) do
+ActiveRecord::Schema[7.0].define(version: 2024_05_27_123631) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -902,6 +902,18 @@ ActiveRecord::Schema[7.0].define(version: 2024_05_02_095122) do
     t.index ["payment_provider_id"], name: "index_refunds_on_payment_provider_id"
   end
 
+  create_table "subscription_instances", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "subscription_id", null: false
+    t.datetime "started_at"
+    t.datetime "ended_at"
+    t.uuid "pinet_transaction_charge_id"
+    t.decimal "total_subscription_value", precision: 30, scale: 5, default: "0.0", null: false
+    t.boolean "is_finalized", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["subscription_id"], name: "index_subscription_instances_on_subscription_id"
+  end
+
   create_table "subscriptions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "customer_id", null: false
     t.uuid "plan_id", null: false
@@ -1114,6 +1126,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_05_02_095122) do
   add_foreign_key "refunds", "payment_provider_customers"
   add_foreign_key "refunds", "payment_providers"
   add_foreign_key "refunds", "payments"
+  add_foreign_key "subscription_instances", "subscriptions"
   add_foreign_key "subscriptions", "customers"
   add_foreign_key "subscriptions", "plans"
   add_foreign_key "taxes", "organizations"
