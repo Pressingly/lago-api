@@ -1,0 +1,2 @@
+class AuthorizationPolicy < PublisherPortalRecord
+end

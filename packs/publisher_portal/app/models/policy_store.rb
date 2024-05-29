@@ -1,0 +1,2 @@
+class PolicyStore < PublisherPortalRecord
+end

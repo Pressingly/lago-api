@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_05_02_095122) do
+ActiveRecord::Schema[7.0].define(version: 2024_05_29_071835) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -848,6 +848,11 @@ ActiveRecord::Schema[7.0].define(version: 2024_05_02_095122) do
     t.index ["plan_id", "tax_id"], name: "index_plans_taxes_on_plan_id_and_tax_id", unique: true
     t.index ["plan_id"], name: "index_plans_taxes_on_plan_id"
     t.index ["tax_id"], name: "index_plans_taxes_on_tax_id"
+  end
+
+  create_table "policy_stores", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "quantified_events", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|

@@ -1,19 +1,21 @@
 # frozen_string_literal: true
 
-require 'aws_avp'
-
 module V1
   module Entitlement
     class AuthorizationController < ApplicationController
       def index
-        client = AwsAvp.init
-        schema = client.get_schema({
-          policy_store_id: "C67cCCM1qXiox3Uh6f6JzQ"
-        })
+        payload = JSON.parse(request.body.read)
+        avp_store_id = ENV['AVP_POLICY_STORE_ID']
+
+        auth_payload = EntitlementAdapter::ConverterService.call(payload: payload, avp_store_id: avp_store_id)
+        # puts "auth_payload: #{auth_payload}"
+        is_authorized = Authorization::AuthorizeService.call(payload: auth_payload)
+
+        puts "is_authorized: #{is_authorized}"
+
         render(
           json: {
             message: 'Success',
-            data: schema.to_json,
           },
           status: :ok,
         )
