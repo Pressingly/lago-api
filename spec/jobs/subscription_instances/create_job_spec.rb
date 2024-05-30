@@ -19,7 +19,7 @@ RSpec.describe SubscriptionInstances::CreateJob, type: :job do
     expect(subscription_instance_service).to have_received(:call)
   end
 
-  context 'when reccisult is a failure' do
+  context 'when result is a failure' do
     let(:result) do
       BaseService::Result.new.validation_failure!(errors: { subscription: ['is_not_active'] })
     end
