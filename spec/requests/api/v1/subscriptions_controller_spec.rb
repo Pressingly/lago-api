@@ -36,6 +36,30 @@ RSpec.describe Api::V1::SubscriptionsController, type: :request do
       }
     end
 
+    it 'creates a subscription and enqueues a job to create a subscription instance' do
+      allow(SubscriptionInstances::CreateJob).to receive(:perform_later).and_call_original
+      post_with_token(organization, '/api/v1/subscriptions', { subscription: params })
+
+      expect(response).to have_http_status(:ok)
+      expect(json[:subscription]).to include(
+        external_customer_id: customer.external_id,
+        plan_code: plan.code,
+        name: 'subscription name'
+      )
+
+      subscription = Subscription.find_by(external_id: json[:subscription][:external_id])
+      expect(subscription).not_to be_nil
+
+      expect(SubscriptionInstances::CreateJob).to have_received(:perform_later).with(subscription)
+
+      # Perform the job immediately to verify the instance creation
+      perform_enqueued_jobs { SubscriptionInstances::CreateJob.perform_later(subscription) }
+
+      subscription_instance = SubscriptionInstance.find_by(subscription: subscription)
+      expect(subscription_instance).not_to be_nil
+      expect(subscription_instance.subscription).to eq(subscription)
+    end
+
     it 'returns a success', :aggregate_failures do
       create(:plan, code: plan.code, parent_id: plan.id, organization:, description: 'foo')
 

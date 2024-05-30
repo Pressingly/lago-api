@@ -24,6 +24,7 @@ module Api
         )
 
         if result.success?
+          SubscriptionInstances::CreateJob.perform_later(result.subscription)
           render_subscription(result.subscription)
         else
           render_error_response(result)
