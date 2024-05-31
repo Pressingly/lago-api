@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_05_02_095122) do
+ActiveRecord::Schema[7.0].define(version: 2024_05_31_075016) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -415,6 +415,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_05_02_095122) do
     t.integer "net_payment_term"
     t.string "external_salesforce_id"
     t.string "payment_provider_code"
+    t.string "pinet_id_token"
     t.index ["deleted_at"], name: "index_customers_on_deleted_at"
     t.index ["external_id", "organization_id"], name: "index_customers_on_external_id_and_organization_id", unique: true, where: "(deleted_at IS NULL)"
     t.index ["organization_id"], name: "index_customers_on_organization_id"
