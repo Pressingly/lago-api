@@ -33,10 +33,9 @@ module Authorization
       plans = Plan.where(id: AuthorizationPolicy.where(cedar_policy_id: policies).pluck(:plan_id))
       result = []
       policies.each_with_index do |policy_id, index|
-        result << {
-          policy_id: policy_id,
-          plan: plans[index]
-        }
+        plan = plans[index].attributes
+        plan[:policy_id] = policy_id
+        result << plan
       end
 
       result
