@@ -57,8 +57,12 @@ test:
     schema_dump: <% if ENV['LAGO_DISABLE_SCHEMA_DUMP'].present? %> false <% else %> clickhouse_schema.rb <% end %>
   publisher_portal:
     <<: *default
-    url: <%= ENV['PUBLISHER_PORTAL_TEST_URL'].presence || ENV['DATABASE_URL'] %>
-    schema_dump: <% if ENV['LAGO_DISABLE_SCHEMA_DUMP'].present? %> false <% else %> publisher_portal_schema.rb <% end %>
+    database: publisher_portal_test
+    host: localhost
+    port: 5432
+    username: lago
+    password: changeme
+    migrations_paths: db/publisher_portal_migrate
 
 staging:
   primary:
