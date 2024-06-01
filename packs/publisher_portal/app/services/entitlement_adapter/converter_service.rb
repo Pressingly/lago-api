@@ -90,7 +90,7 @@ module EntitlementAdapter
     end
 
     def get_payload_action
-      curr_action = @payload["actionName"].downcase
+      curr_action = @payload["actionName"]&.downcase
       all_actions.find { |action| action.downcase == curr_action }
     end
 
