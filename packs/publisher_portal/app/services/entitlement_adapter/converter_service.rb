@@ -1,7 +1,5 @@
 module EntitlementAdapter
   class ConverterService < BaseService
-    attr_reader :payload
-    attr_reader :avp_store_id
     def initialize(payload:, policy_store_id:)
       @payload = payload
       @policy_store = PolicyStore.find_by(id: policy_store_id)
@@ -11,7 +9,7 @@ module EntitlementAdapter
     end
 
     def call
-      {
+      result = {
         policy_store_id: get_policy_store_id,
         principal: {
           entity_type: principal_entity_type,
@@ -52,9 +50,16 @@ module EntitlementAdapter
           ],
         },
       }
+
+      Rails.logger.info("ConverterService result: #{result}")
+
+      result
     end
 
     private
+
+    attr_reader :payload
+    attr_reader :policy_store_id
 
     def get_policy_store_id
       @policy_store.policy_store_id
