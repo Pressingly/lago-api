@@ -9,13 +9,11 @@ module V1
         puts "authorization_params: #{authorization_params}"
         request_params_valid = Authorization::AuthorizeValidator.new(authorization_params).valid?
 
-        return render(json: failure_response(code: 422, message: "Request payload error")) if !request_params_valid
+        return render(json: failure_response(code: 422, message: "Request payload error")) unless request_params_valid
 
-        payload = JSON.parse(request.body.read)
-        policy_store_id = ENV['AUTHENTICATION_POLICY_STORE_ID']
+        payload = read_payload
 
-        auth_payload = EntitlementAdapter::ConverterService.call(payload: payload, policy_store_id: policy_store_id)
-        authorized_result = Authorization::AuthorizeService.call(payload: auth_payload, client: AwsAvp.init)
+        authorized_result = authorize(payload)
 
         if authorized_result[:is_authorized]
           # create GetLago event based on authorized_result[:subscription_plan]
@@ -31,6 +29,10 @@ module V1
 
       private
 
+      def read_payload
+        JSON.parse(request.body.read)
+      end
+
       def authorization_params
         params.permit(
           :userId,
@@ -40,6 +42,15 @@ module V1
           context: {},
           resource: [:id, :name, :type, :author, :tags, :category]
         )
+      end
+
+      def authorize(payload)
+        auth_payload = EntitlementAdapter::ConverterService.call(payload: payload, policy_store_id: policy_store_id)
+        Authorization::AuthorizeService.call(payload: auth_payload, client: AwsAvp.init)
+      end
+
+      def policy_store_id
+        ENV['AUTHENTICATION_POLICY_STORE_ID']
       end
 
       # def create_get_lago_event(subscription_plan, request)
