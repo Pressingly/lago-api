@@ -9,6 +9,8 @@ class Customer < ApplicationRecord
   include Discard::Model
   self.discard_column = :deleted_at
 
+  encrypts :pinet_id_token
+
   before_save :ensure_slug
 
   belongs_to :organization

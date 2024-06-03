@@ -285,4 +285,13 @@ RSpec.describe Customer, type: :model do
       end
     end
   end
+
+  describe 'pinet_id_token' do
+    let(:pinet_id_token) { 'token1234' }
+    let(:customer) { create(:customer, pinet_id_token: pinet_id_token) }
+
+    it 'encrypts the pinet_id_token field' do
+      expect(customer.encrypted_attribute?(:pinet_id_token)).to eq(true)
+    end
+  end
 end
