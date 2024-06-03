@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'aws_avp'
+
 module V1
   module Entitlement
     class AuthorizationController < ApplicationController
@@ -12,7 +14,7 @@ module V1
         policy_store_id = ENV['AUTHENTICATION_POLICY_STORE_ID']
 
         auth_payload = EntitlementAdapter::ConverterService.call(payload: payload, policy_store_id: policy_store_id)
-        authorized_result = Authorization::AuthorizeService.call(payload: auth_payload)
+        authorized_result = Authorization::AuthorizeService.call(payload: auth_payload, client: AwsAvp.init)
 
         if authorized_result[:is_authorized]
           # create GetLago event based on authorized_result[:subscription_plan]

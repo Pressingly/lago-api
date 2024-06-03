@@ -1,11 +1,9 @@
 # frozen_string_literal: true
 
-require 'aws_avp'
-
 module Authorization
   class AuthorizeService < BaseService
-    def initialize(payload:)
-      @client = AwsAvp.init
+    def initialize(payload:, client:)
+      @client = client
       @payload = payload
 
       super
