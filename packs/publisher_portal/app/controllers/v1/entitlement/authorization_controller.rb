@@ -4,7 +4,7 @@ module V1
   module Entitlement
     class AuthorizationController < ApplicationController
       def index
-        request_params_valid = AuthorizeValidator.new(params).valid?
+        request_params_valid = Authorization::AuthorizeValidator.new(params).valid?
 
         return render(json: failure_response(code: 422, message: "Request payload error")) if !request_params_valid
 
