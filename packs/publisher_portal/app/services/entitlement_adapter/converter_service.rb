@@ -58,8 +58,7 @@ module EntitlementAdapter
 
     private
 
-    attr_reader :payload
-    attr_reader :policy_store_id
+    attr_reader :payload, :policy_store_id
 
     def get_policy_store_id
       @policy_store.policy_store_id
