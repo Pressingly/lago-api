@@ -13,6 +13,7 @@ RSpec.describe Api::V1::CustomersController, type: :request do
         currency: 'EUR',
         timezone: 'America/New_York',
         external_salesforce_id: 'foobar',
+        pinet_id_token: 'fake_token',
       }
     end
 
@@ -28,6 +29,7 @@ RSpec.describe Api::V1::CustomersController, type: :request do
         expect(json[:customer][:created_at]).to be_present
         expect(json[:customer][:currency]).to eq(create_params[:currency])
         expect(json[:customer][:external_salesforce_id]).to eq(create_params[:external_salesforce_id])
+        expect(json[:customer][:pinet_id_token]).to eq(create_params[:pinet_id_token])
       end
     end
 

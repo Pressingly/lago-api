@@ -29,6 +29,7 @@ module V1
         applicable_timezone: model.applicable_timezone,
         net_payment_term: model.net_payment_term,
         external_salesforce_id: model.external_salesforce_id,
+        pinet_id_token: model.pinet_id_token,
         billing_configuration:,
       }.merge(legacy_values.except(:billing_configuration))
 

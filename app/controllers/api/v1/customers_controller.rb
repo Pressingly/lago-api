@@ -111,6 +111,7 @@ module Api
           :timezone,
           :net_payment_term,
           :external_salesforce_id,
+          :pinet_id_token,
           integration_customer: [
             :external_customer_id,
             :integration_type,
