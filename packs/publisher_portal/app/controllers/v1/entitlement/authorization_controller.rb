@@ -6,7 +6,8 @@ module V1
   module Entitlement
     class AuthorizationController < ApplicationController
       def index
-        request_params_valid = Authorization::AuthorizeValidator.new(params).valid?
+        puts "authorization_params: #{authorization_params}"
+        request_params_valid = Authorization::AuthorizeValidator.new(authorization_params).valid?
 
         return render(json: failure_response(code: 422, message: "Request payload error")) if !request_params_valid
 
@@ -29,6 +30,17 @@ module V1
       end
 
       private
+
+      def authorization_params
+        params.permit(
+          :userId,
+          :publisherId,
+          :actionName,
+          :timestamp,
+          context: {},
+          resource: [:id, :name, :type, :author, :tags, :category]
+        )
+      end
 
       # def create_get_lago_event(subscription_plan, request)
       #   puts "subscription_plan: #{subscription_plan}"
