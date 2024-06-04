@@ -8,7 +8,7 @@ RSpec.describe Authorization::AuthorizeValidator, type: :model do
       actionName: 'action1',
       context: {},
       resource: { 'id' => 'resource1', 'type' => 'type1' },
-      timestamp: Time.now
+      timestamp: Time.current
     }
   end
 
