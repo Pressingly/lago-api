@@ -59,6 +59,7 @@ module ConsumptionEvent
       subscription = Subscription.find_by(plan_id: plan_id, customer_id: customer.id)
 
       # TODO: a plan can have multiple billable metrics. Do we emit one consumption event per billable metric?
+      # https://thepressingly.atlassian.net/browse/PINET-383
       billable_metric = subscription.plan.billable_metrics.first
       external_subscription_id = subscription.external_id
       external_customer_id = customer.external_id
