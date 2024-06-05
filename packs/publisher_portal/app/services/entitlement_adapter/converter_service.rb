@@ -60,32 +60,36 @@ module EntitlementAdapter
 
     attr_reader :payload, :policy_store_id
 
+    def namespace
+      @policy_store.namespace
+    end
+
     def get_policy_store_id
       @policy_store.policy_store_id
     end
 
     def principal_entity_type
-      "#{@policy_store.namespace}::Subscriber"
+      "#{namespace}::Subscriber"
     end
 
     def subscription_plan_entity_type
-      "#{@policy_store.namespace}::SubscriptionPlan"
+      "#{namespace}::SubscriptionPlan"
     end
 
     def resource_entity_type
-      "#{@policy_store.namespace}::ResourceGroup"
+      "#{namespace}::ResourceGroup"
     end
 
     def article_entity_type
-      "#{@policy_store.namespace}::Article"
+      "#{namespace}::Article"
     end
 
     def action_type
-      "#{@policy_store.namespace}::Action"
+      "#{namespace}::Action"
     end
 
     def all_actions
-      @policy_store.schema[@policy_store.namespace]["actions"].keys
+      @policy_store.schema[namespace]["actions"].keys
     end
 
     def get_payload_action
