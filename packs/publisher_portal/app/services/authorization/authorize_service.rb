@@ -10,7 +10,7 @@ module Authorization
     end
 
     def call
-      authorized_resp = @client.is_authorized(@payload)
+      authorized_resp = client.is_authorized(payload)
       plans = get_plans_by_policies(authorized_resp[:determining_policies].map(&:policy_id))
       resp = {
         is_authorized: authorized_resp[:decision] == 'ALLOW',
@@ -31,7 +31,7 @@ module Authorization
 
     private
 
-    attr_reader :payload
+    attr_reader :payload, :client
 
     def get_plans_by_policies(policies)
       plans = Plan.where(id: AuthorizationPolicy.where(cedar_policy_id: policies).pluck(:plan_id))
