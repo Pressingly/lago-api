@@ -61,7 +61,7 @@ module EntitlementAdapter
     attr_reader :payload, :policy_store_id
 
     def namespace
-      @policy_store.namespace
+      @namespace ||= @policy_store.namespace
     end
 
     def get_policy_store_id
