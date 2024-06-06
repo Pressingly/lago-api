@@ -2,6 +2,8 @@
 
 module ConsumptionEvent
   class EmitService < BaseService
+    include ApiErrors
+
     def initialize(subscription_plan:, request:)
       @subscription_plan = subscription_plan
       @request = request
@@ -67,7 +69,7 @@ module ConsumptionEvent
       {
         transaction_id: SecureRandom.uuid,
         external_customer_id: external_customer_id,
-        code: billable_metric.code,
+        code: billable_metric&.code,
         external_subscription_id: external_subscription_id,
         timestamp: Time.current.to_f
       }
