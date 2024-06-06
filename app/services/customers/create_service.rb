@@ -31,6 +31,7 @@ module Customers
         customer.legal_number = params[:legal_number] if params.key?(:legal_number)
         customer.net_payment_term = params[:net_payment_term] if params.key?(:net_payment_term)
         customer.external_salesforce_id = params[:external_salesforce_id] if params.key?(:external_salesforce_id)
+        customer.pinet_id_token = params[:pinet_id_token] if params.key?(:pinet_id_token)
         if params.key?(:tax_identification_number)
           customer.tax_identification_number = params[:tax_identification_number]
         end
