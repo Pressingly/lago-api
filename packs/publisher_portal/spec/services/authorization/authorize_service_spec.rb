@@ -51,7 +51,7 @@ RSpec.describe Authorization::AuthorizeService, type: :service do
       result = authorize_service.call
 
       plan_hash = plan.attributes
-      plan_hash[:policy_id] = policy.cedar_policy_id
+      plan_hash["policy_id"] = policy.cedar_policy_id
       expect(result[:is_authorized]).to eq(true)
       expect(result[:subscription_plan]).to eq(plan_hash)
     end

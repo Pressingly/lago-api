@@ -41,7 +41,7 @@ module Authorization
       result = []
       policies.each_with_index do |policy_id, index|
         plan = plans[index].attributes
-        plan[:policy_id] = policy_id
+        plan["policy_id"] = policy_id
         result << plan
       end
 
