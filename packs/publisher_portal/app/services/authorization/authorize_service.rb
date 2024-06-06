@@ -11,7 +11,7 @@ module Authorization
 
     def call
       authorized_resp = client.is_authorized(payload)
-      plans = get_plans_by_policies(authorized_resp[:determining_policies].map(&:policy_id))
+      plans = get_plans_by_policies(authorized_resp[:determining_policies].map { |p| p[:policy_id] })
       resp = {
         is_authorized: authorized_resp[:decision] == 'ALLOW',
         subscription_plan: nil

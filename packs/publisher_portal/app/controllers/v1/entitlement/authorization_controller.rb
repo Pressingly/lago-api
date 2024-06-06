@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'aws_avp'
+require 'aws-sdk-verifiedpermissions'
 
 module V1
   module Entitlement
@@ -47,8 +47,12 @@ module V1
       end
 
       def authorize(payload)
+        avp_client = Aws::VerifiedPermissions::Client.new({
+          region: 'ap-southeast-1',
+          credentials: Aws::Credentials.new(ENV.fetch('AWS_ACCESS_KEY_ID', nil), ENV.fetch('AWS_SECRET_ACCESS_KEY', nil))
+        })
         auth_payload = EntitlementAdapter::ConverterService.call(payload: payload, policy_store_id: policy_store_id)
-        Authorization::AuthorizeService.call(payload: auth_payload, client: AwsAvp.init)
+        Authorization::AuthorizeService.call(payload: auth_payload, client: avp_client)
       end
 
       def policy_store_id

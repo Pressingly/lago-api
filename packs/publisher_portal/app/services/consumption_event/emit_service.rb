@@ -16,8 +16,11 @@ module ConsumptionEvent
 
       event_params = create_params(subscription_plan["id"], JSON.parse(request.body.read))
 
+      # organization = current_organization(subscription_plan["organization_id"])
+
       result = ::Events::CreateService.call(
         organization: current_organization(subscription_plan["organization_id"]),
+        # organization: organization,
         params: event_params,
         timestamp: Time.current.to_f,
         metadata: event_metadata(request),
