@@ -38,7 +38,6 @@ RSpec.describe Authorization::AuthorizeService, type: :service do
        {identifier: {entity_type: "ABCNews::Article", entity_id: "article"},
         parents: [{entity_type: "ABCNews::ResourceGroup", entity_id: "article"}]}]}}
   }
-  let(:aws_avp_client) { instance_double('AwsAvp') }
   let(:authorized_resp) { { decision: 'ALLOW', determining_policies: [OpenStruct.new(policy_id: 1)] } }
   let(:body) { { decision: 'ALLOW', determining_policies: [OpenStruct.new(policy_id: 1)] } }
 
@@ -61,7 +60,7 @@ RSpec.describe Authorization::AuthorizeService, type: :service do
         Aws::VerifiedPermissions::Client.new(
           stub_responses:
           {is_authorized: {
-            decision: "ALLOW",
+            decision: "DENY",
             determining_policies: [],
             errors: []
           }}
