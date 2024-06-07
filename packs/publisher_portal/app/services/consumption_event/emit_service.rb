@@ -16,7 +16,7 @@ module ConsumptionEvent
 
       event_params = create_params(subscription_plan["id"], JSON.parse(request.body.read))
 
-      return if event_params.code.blank?
+      return if event_params[:code].blank?
 
       result = ::Events::CreateService.call(
         organization: current_organization(subscription_plan["organization_id"]),
@@ -66,11 +66,9 @@ module ConsumptionEvent
       # https://thepressingly.atlassian.net/browse/PINET-383
       billable_metric = subscription.plan.billable_metrics.first
       external_subscription_id = subscription.external_id
-      external_customer_id = customer.external_id
 
       {
         transaction_id: SecureRandom.uuid,
-        external_customer_id: external_customer_id,
         code: billable_metric&.code,
         external_subscription_id: external_subscription_id,
         timestamp: Time.current.to_f
