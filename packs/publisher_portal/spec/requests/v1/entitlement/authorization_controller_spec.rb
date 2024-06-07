@@ -101,7 +101,5 @@ RSpec.describe V1::Entitlement::AuthorizationController, type: :request do
         expect(JSON.parse(response.body)["code"]).to eq(422)
       end
     end
-
-    # Add more tests here to check the response body, etc.
   end
 end
