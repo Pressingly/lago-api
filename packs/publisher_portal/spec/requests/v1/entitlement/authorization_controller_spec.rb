@@ -35,17 +35,6 @@ RSpec.describe V1::Entitlement::AuthorizationController, type: :request do
       instance_double(Aws::VerifiedPermissions::Client, is_authorized: is_authorized_resp)
     end
 
-    # let(:is_authorized_resp) {
-    #   {
-    #     decision: "DENY",
-    #     determining_policies: [],
-    #     errors: []
-    #   }
-    # }
-    # let(:avp_client) do
-    #   instance_double(Aws::VerifiedPermissions::Client, is_authorized: is_authorized_resp)
-    # end
-
     let(:base_params) do
       {
         userId: customer.id,
