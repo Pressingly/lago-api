@@ -6,17 +6,109 @@ module V1
   module Entitlement
     class AuthorizationController < ApplicationController
       def index
-        client = AwsAvp.init
-        schema = client.get_schema({
-          policy_store_id: "C67cCCM1qXiox3Uh6f6JzQ"
-        })
+        puts "authorization_params: #{authorization_params}"
+        request_params_valid = Authorization::AuthorizeValidator.new(authorization_params).valid?
+
+        return render(json: failure_response(code: 422, message: "Request payload error")) unless request_params_valid
+
+        payload = read_payload
+
+        authorized_result = authorize(payload)
+
+        if authorized_result[:is_authorized]
+          # create GetLago event based on authorized_result[:subscription_plan]
+          # create_get_lago_event(authorized_result[:subscription_plan], request)
+
+          return render(json: success_response(message: "Authorized", extra: authorized_result[:subscription_plan]))
+        end
+
         render(
-          json: {
-            message: 'Success',
-            data: schema.to_json,
-          },
-          status: :ok,
+          json: failure_response(message: "Your subscriptions are expired")
         )
+      end
+
+      private
+
+      def read_payload
+        JSON.parse(request.body.read)
+      end
+
+      def authorization_params
+        params.permit(
+          :userId,
+          :publisherId,
+          :actionName,
+          :timestamp,
+          context: {},
+          resource: [:id, :name, :type, :author, :tags, :category]
+        )
+      end
+
+      def authorize(payload)
+        auth_payload = EntitlementAdapter::ConverterService.call(payload: payload, policy_store_id: policy_store_id)
+        Authorization::AuthorizeService.call(payload: auth_payload, client: AwsAvp.init)
+      end
+
+      def policy_store_id
+        ENV['AUTHENTICATION_POLICY_STORE_ID']
+      end
+
+      # def create_get_lago_event(subscription_plan, request)
+      #   puts "subscription_plan: #{subscription_plan}"
+      #   result = ::Events::CreateService.call(
+      #     organization: current_organization(subscription_plan[:organization_id]),
+      #     params: create_params(subscription_plan[:id], JSON.parse(request.body.read)),
+      #     timestamp: Time.current.to_f,
+      #     metadata: event_metadata(request),
+      #   )
+
+      #   if result.success?
+      #     render(
+      #       json: ::V1::EventSerializer.new(
+      #         result.event,
+      #         root_name: 'event',
+      #       ),
+      #     )
+      #   else
+      #     render_error_response(result)
+      #   end
+      # end
+
+      # def current_organization(organization_id)
+      #   puts "organization_id: #{organization_id}"
+      #   Organization.find_by(id: organization_id)
+      # end
+
+      # def event_metadata(request)
+      #   {
+      #     user_agent: request.user_agent,
+      #     ip_address: request.remote_ip,
+      #   }
+      # end
+
+      # def create_params(plan_id, req_payload)
+      #   puts "plan_id: #{plan_id}"
+      #   puts "req_payload: #{req_payload}"
+      #   subscription = Subscription.find_by(plan_id: plan_id, customer_id: req_payload["userId"])
+      #   puts "subscription: #{subscription.to_json}"
+      # end
+
+      def failure_response(code: 401, message: "Unauthorized", extra: {})
+        {
+          status: "Deny",
+          code: code,
+          message: message,
+          extra: extra
+        }.to_json
+      end
+
+      def success_response(code: 200, message: "OK", extra: {})
+        {
+          status: "Alow",
+          code: code,
+          message: message,
+          extra: extra
+        }
       end
     end
   end

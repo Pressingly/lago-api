@@ -4,6 +4,6 @@ require 'v1/entitlement/authorization_controller'
 
 namespace :v1 do
   namespace :entitlement do
-    get '/authorization', to: 'authorization#index'
+    post '/authorize', to: 'authorization#index'
   end
 end
