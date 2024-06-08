@@ -87,7 +87,7 @@ module SubscriptionInstances
 
       SubscriptionInstanceItems::CreateService.new(
         subscription_instance: subscription_instance,
-        amount: plan.amount_cents,
+        fee_amount_cents: plan.amount_cents,
         charge_type: SubscriptionInstanceItem.charge_types[:base_charge]
       ).call
     end
