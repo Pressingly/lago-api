@@ -83,11 +83,11 @@ module SubscriptionInstances
     end
 
     def create_new_subscription_instance_item(subscription_instance)
-      return unless charge_without_usage && plan.base_amount_cents.positive?
+      return unless charge_without_usage && plan.amount_cents.positive?
 
       SubscriptionInstanceItems::CreateService.new(
         subscription_instance: subscription_instance,
-        amount: plan.base_amount_cents,
+        amount: plan.amount_cents,
         charge_type: SubscriptionInstanceItem.charge_types[:base_charge]
       ).call
     end
