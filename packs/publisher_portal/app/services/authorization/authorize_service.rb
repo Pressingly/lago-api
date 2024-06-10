@@ -10,8 +10,8 @@ module Authorization
     end
 
     def call
-      authorized_resp = @client.is_authorized(@payload)
-      plans = get_plans_by_policies(authorized_resp[:determining_policies].map(&:policy_id))
+      authorized_resp = client.is_authorized(payload)
+      plans = get_plans_by_policies(authorized_resp[:determining_policies].map { |p| p[:policy_id] })
       resp = {
         is_authorized: authorized_resp[:decision] == 'ALLOW',
         subscription_plan: nil
@@ -31,7 +31,7 @@ module Authorization
 
     private
 
-    attr_reader :payload
+    attr_reader :payload, :client
 
     def get_plans_by_policies(policies)
       plans = Plan.where(id: AuthorizationPolicy.where(cedar_policy_id: policies).pluck(:plan_id))
@@ -41,7 +41,7 @@ module Authorization
       result = []
       policies.each_with_index do |policy_id, index|
         plan = plans[index].attributes
-        plan[:policy_id] = policy_id
+        plan["policy_id"] = policy_id
         result << plan
       end
 
