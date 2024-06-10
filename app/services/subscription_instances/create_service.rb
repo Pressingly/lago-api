@@ -19,6 +19,15 @@ module SubscriptionInstances
 
       ActiveRecord::Base.transaction do
         result.subscription_instance = create_subscription_instance
+
+        if charge_without_usage && plan.amount_cents.positive? && plan.pay_in_advance?
+          new_item_creation_result = create_new_subscription_instance_item(result.subscription_instance)
+          if new_item_creation_result.success?
+            subscription_instance_item = new_item_creation_result.subscription_instance_item
+
+            result.subscription_instance = update_total_subscription_value(result.subscription_instance, subscription_instance_item.fee_amount_cents)
+          end
+        end
       end
 
       result
@@ -73,6 +82,32 @@ module SubscriptionInstances
       # else
       #   ending_at = Time.current.end_of_week
       # end
+    end
+
+    def create_new_subscription_instance_item(subscription_instance)
+      SubscriptionInstanceItems::CreateService.new(
+        subscription_instance: subscription_instance,
+        fee_amount_cents: plan.amount_cents,
+        charge_type: SubscriptionInstanceItem.charge_types[:base_charge]
+      ).call
+    end
+
+    def charge_without_usage
+      # TODO: add new column to plan table
+      return plan.charge_without_usage if plan.has_attribute?(:charge_without_usage)
+
+      true
+    end
+
+    def update_total_subscription_value(subscription_instance, fee_amount_cents)
+      prev_subscription_value = subscription_instance.total_subscription_value
+      total_subscription_value = prev_subscription_value + fee_amount_cents.fdiv(100)
+
+      if prev_subscription_value != total_subscription_value
+        subscription_instance.update!(total_subscription_value: total_subscription_value)
+      end
+
+      subscription_instance
     end
   end
 end
