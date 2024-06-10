@@ -5,12 +5,13 @@ require 'rails_helper'
 RSpec.describe SubscriptionInstances::CreateService, type: :service do
   subject(:create_service) { described_class.new(subscription:) }
 
+  let(:amount_cents) { 100 }
   let(:subscription) { create(:subscription, plan:) }
-  let(:plan) { create(:plan, interval: 'weekly') }
+  let(:plan) { create(:plan, interval: 'weekly', pay_in_advance: true, amount_cents:) }
 
   describe '#call' do
     context 'when the subscription is valid' do
-      it 'create a subscription instance' do
+      it 'create a subscription instance and a corresponding subscription instance item' do
         result = create_service.call
 
         aggregate_failures do
@@ -18,6 +19,12 @@ RSpec.describe SubscriptionInstances::CreateService, type: :service do
 
           subscription_instance = result.subscription_instance
           expect(subscription_instance.started_at.to_i).to eq(subscription.started_at.to_i)
+
+          subscription_instance_items = subscription_instance.subscription_instance_items
+          expect(subscription_instance_items.count).to eq(1)
+
+          expect(subscription_instance_items.first.fee_amount_cents).to eq(amount_cents)
+          expect(subscription_instance.total_subscription_value).to eq(amount_cents / 100.0)
         end
       end
     end
