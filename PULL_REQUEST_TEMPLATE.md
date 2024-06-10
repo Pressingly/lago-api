@@ -1,21 +1,21 @@
-### Motivation / Background
+# Motivation / Background
 
 Information about the problem or the feature. This is the place to explain the context of the problem you are solving or the feature you are adding.
 
 *This Pull Request has been created because:*
 Reasons for the change
 
-### Detail
+# Detail
 
 *This Pull Request changes:*
 
 List of things you do in this PR
 
-### Additional information
+# Additional information
 
 *TIP: Provide additional information such as screenshots, benchmarks, reference to other repositories or alternative solutions*
 
-### Checklist
+# Checklist
 
 Before submitting the PR make sure the following are checked:
 

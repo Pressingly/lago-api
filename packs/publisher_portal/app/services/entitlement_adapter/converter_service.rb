@@ -93,16 +93,16 @@ module EntitlementAdapter
     end
 
     def get_payload_action
-      curr_action = @payload["actionName"]&.downcase
+      curr_action = payload["actionName"]&.downcase
       all_actions.find { |action| action.downcase == curr_action }
     end
 
     def resource_id
-      @payload["resource"]["id"]
+      payload["resource"]["id"]
     end
 
     def resource_type
-      @payload["resource"]["type"]
+      payload["resource"]["type"]
     end
 
     def all_plans_by_user
