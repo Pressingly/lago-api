@@ -20,7 +20,7 @@ module SubscriptionInstances
       ActiveRecord::Base.transaction do
         result.subscription_instance = create_subscription_instance
 
-        if charge_without_usage && plan.amount_cents.positive?
+        if charge_without_usage && plan.amount_cents.positive? && plan.pay_in_advance?
           new_item_creation_result = create_new_subscription_instance_item(result.subscription_instance)
           if new_item_creation_result.success?
             subscription_instance_item = new_item_creation_result.subscription_instance_item
