@@ -25,7 +25,7 @@ module SubscriptionInstances
           if new_item_creation_result.success?
             subscription_instance_item = new_item_creation_result.subscription_instance_item
 
-            result.subscription_instance = update_total_subscription_value(result.subscription_instance, subscription_instance_item.fee_amount_cents)
+            result.subscription_instance = update_total_amount(result.subscription_instance, subscription_instance_item.fee_amount)
           end
         end
       end
@@ -53,8 +53,8 @@ module SubscriptionInstances
         subscription:,
         started_at:,
         ended_at: nil,
-        is_finalized: false,
-        total_subscription_value: 0
+        status: SubscriptionInstance.statuses[:active],
+        total_amount: 0.0
       )
 
       begin
@@ -87,7 +87,7 @@ module SubscriptionInstances
     def create_new_subscription_instance_item(subscription_instance)
       SubscriptionInstanceItems::CreateService.new(
         subscription_instance: subscription_instance,
-        fee_amount_cents: plan.amount_cents,
+        fee_amount: plan.amount.currency.subunit_to_unit,
         charge_type: SubscriptionInstanceItem.charge_types[:base_charge]
       ).call
     end
@@ -99,12 +99,12 @@ module SubscriptionInstances
       true
     end
 
-    def update_total_subscription_value(subscription_instance, fee_amount_cents)
-      prev_subscription_value = subscription_instance.total_subscription_value
-      total_subscription_value = prev_subscription_value + fee_amount_cents.fdiv(100)
+    def update_total_amount(subscription_instance, fees_amount)
+      prev_total_amount = subscription_instance.total_amount
+      new_total_amount = prev_total_amount + fees_amount
 
-      if prev_subscription_value != total_subscription_value
-        subscription_instance.update!(total_subscription_value: total_subscription_value)
+      if prev_total_amount != new_total_amount
+        subscription_instance.update!(total_amount: new_total_amount)
       end
 
       subscription_instance

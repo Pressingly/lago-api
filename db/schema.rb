@@ -905,7 +905,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_06_05_095652) do
 
   create_table "subscription_instance_items", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "subscription_instance_id", null: false
-    t.bigint "fee_amount_cents", default: 0, null: false
+    t.decimal "fee_amount", precision: 30, scale: 15, default: "0.0", null: false
     t.string "charge_type", null: false
     t.string "code"
     t.datetime "created_at", null: false
@@ -918,8 +918,9 @@ ActiveRecord::Schema[7.0].define(version: 2024_06_05_095652) do
     t.datetime "started_at"
     t.datetime "ended_at"
     t.uuid "pinet_transaction_charge_id"
-    t.decimal "total_subscription_value", precision: 30, scale: 5, default: "0.0", null: false
-    t.boolean "is_finalized", default: false
+    t.decimal "total_amount", precision: 30, scale: 15, default: "0.0", null: false
+    t.string "status", null: false
+    t.integer "version_number", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["subscription_id"], name: "index_subscription_instances_on_subscription_id"

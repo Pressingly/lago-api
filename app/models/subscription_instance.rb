@@ -5,4 +5,12 @@ class SubscriptionInstance < ApplicationRecord
 
   belongs_to :subscription
   has_many :subscription_instance_items, dependent: :destroy
+
+  STATUSES = {
+    pending: 'pending',
+    active: 'active',
+    finalized: 'finalized'
+  }.freeze
+
+  enum status: STATUSES
 end

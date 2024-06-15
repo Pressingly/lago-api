@@ -4,10 +4,10 @@ require 'rails_helper'
 
 RSpec.describe SubscriptionInstanceItems::CreateService do
   let(:subscription_instance) { create(:subscription_instance) }
-  let(:fee_amount_cents) { 1000 }
+  let(:fee_amount) { 1000 }
   let(:charge_type) { 'base_charge' }
   let(:code) { nil }
-  let(:service) { described_class.new(subscription_instance:, fee_amount_cents:, charge_type:, code:) }
+  let(:service) { described_class.new(subscription_instance:, fee_amount:, charge_type:, code:) }
 
   describe '#call' do
     context 'with valid parameters' do
@@ -15,7 +15,7 @@ RSpec.describe SubscriptionInstanceItems::CreateService do
         result = service.call
         expect(result.subscription_instance_item).to be_a(SubscriptionInstanceItem)
         expect(result.subscription_instance_item.charge_type).to eq(charge_type)
-        expect(result.subscription_instance_item.fee_amount_cents).to eq(fee_amount_cents)
+        expect(result.subscription_instance_item.fee_amount).to eq(fee_amount)
       end
     end
 

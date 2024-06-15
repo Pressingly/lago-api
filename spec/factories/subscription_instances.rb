@@ -3,7 +3,7 @@
 FactoryBot.define do
   factory :subscription_instance do
     subscription
-
-    is_finalized { false }
+    version_number { 0 }
+    status { 'active' }
   end
 end

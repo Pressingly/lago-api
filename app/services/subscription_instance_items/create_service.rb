@@ -2,9 +2,9 @@
 
 module SubscriptionInstanceItems
   class CreateService < BaseService
-    def initialize(subscription_instance:, fee_amount_cents:, charge_type:, code: nil)
+    def initialize(subscription_instance:, fee_amount:, charge_type:, code: nil)
       @subscription_instance = subscription_instance
-      @fee_amount_cents = fee_amount_cents
+      @fee_amount = fee_amount
       @charge_type = charge_type
       @code = code
 
@@ -13,7 +13,7 @@ module SubscriptionInstanceItems
 
     def call
       result.subscription_instance_item = subscription_instance.subscription_instance_items.create!(
-        fee_amount_cents:,
+        fee_amount:,
         charge_type:,
         code:
       )
@@ -27,6 +27,6 @@ module SubscriptionInstanceItems
 
     private
 
-    attr_reader :subscription_instance, :fee_amount_cents, :charge_type, :code
+    attr_reader :subscription_instance, :fee_amount, :charge_type, :code
   end
 end
