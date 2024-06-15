@@ -917,7 +917,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_06_05_095652) do
     t.uuid "subscription_id", null: false
     t.datetime "started_at"
     t.datetime "ended_at"
-    t.uuid "pinet_transaction_charge_id"
+    t.uuid "pinet_subscription_charge_id"
     t.decimal "total_amount", precision: 30, scale: 15, default: "0.0", null: false
     t.string "status", null: false
     t.integer "version_number", default: 0, null: false
