@@ -101,7 +101,6 @@ module SubscriptionInstances
     end
 
     def update_total_amount(subscription_instance, fees_amount)
-
       update_result = SubscriptionInstances::IncreaseTotalValueService.new(
         subscription_instance: subscription_instance,
         fee_amount: fees_amount
