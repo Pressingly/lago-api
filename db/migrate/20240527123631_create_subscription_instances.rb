@@ -4,9 +4,10 @@ class CreateSubscriptionInstances < ActiveRecord::Migration[7.0]
       t.references :subscription, null: false, foreign_key: true, type: :uuid
       t.datetime :started_at
       t.datetime :ended_at
-      t.uuid :pinet_transaction_charge_id
-      t.decimal :total_subscription_value, precision: 30, scale: 5, default: "0.0", null: false
-      t.boolean :is_finalized, default: false
+      t.uuid :pinet_subscription_charge_id
+      t.decimal :total_amount, precision: 30, scale: 15, default: "0.0", null: false
+      t.string :status, null: false
+      t.integer :version_number, default: 0, null: false
 
       t.timestamps
     end
