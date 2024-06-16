@@ -85,9 +85,10 @@ module SubscriptionInstances
     end
 
     def create_new_subscription_instance_item(subscription_instance)
+      currency = plan.amount.currency
       SubscriptionInstanceItems::CreateService.new(
         subscription_instance: subscription_instance,
-        fee_amount: plan.amount.currency.subunit_to_unit,
+        fee_amount: plan.amount_cents.fdiv(currency.subunit_to_unit),
         charge_type: SubscriptionInstanceItem.charge_types[:base_charge]
       ).call
     end
@@ -100,14 +101,14 @@ module SubscriptionInstances
     end
 
     def update_total_amount(subscription_instance, fees_amount)
-      prev_total_amount = subscription_instance.total_amount
-      new_total_amount = prev_total_amount + fees_amount
 
-      if prev_total_amount != new_total_amount
-        subscription_instance.update!(total_amount: new_total_amount)
-      end
+      update_result = SubscriptionInstances::IncreaseTotalValueService.new(
+        subscription_instance: subscription_instance,
+        fee_amount: fees_amount
+      ).call
 
-      subscription_instance
+      update_result.raise_if_error!
+      update_result.subscription_instance
     end
   end
 end
