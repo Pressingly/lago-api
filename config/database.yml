@@ -78,6 +78,10 @@ staging:
     migrations_paths: db/clickhouse_migrate
     debug: false
     database_tasks: <% if ENV['LAGO_CLICKHOUSE_ENABLED'].present? %> true <% else %> false <% end %>
+  publisher_portal:
+    <<: *default
+    url: <%= ENV['PUBLISHER_PORTAL_URL'].presence || ENV['DATABASE_URL'] %>
+    migrations_paths: db/publisher_portal_migrate
 
 production:
   primary:
@@ -101,3 +105,8 @@ production:
     migrations_paths: db/clickhouse_migrate
     debug: false
     database_tasks: <% if ENV['LAGO_CLICKHOUSE_ENABLED'].present? %> true <% else %> false <% end %>
+  publisher_portal:
+    <<: *default
+    url: <%= ENV['PUBLISHER_PORTAL_URL'].presence || ENV['DATABASE_URL'] %>
+    migrations_paths: db/publisher_portal_migrate
+

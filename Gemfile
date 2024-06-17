@@ -83,12 +83,14 @@ gem 'karafka-web', '~> 0.9.0', require: false
 # Taxes
 gem 'valvat', require: false
 
+# Rswag
+gem 'rswag-api'
+gem 'rswag-ui'
+
 group :development, :test, :staging do
   gem 'factory_bot_rails'
   gem 'faker'
   gem 'timecop'
-  gem 'rswag-api'
-  gem 'rswag-ui'
 end
 
 group :development, :test do
