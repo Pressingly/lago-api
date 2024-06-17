@@ -148,9 +148,7 @@ module Invoices
     end
 
     def should_increase_subscription_instance_total_value?(invoice)
-      return true if invoice.fees_amount_cents.positive?
-
-      false
+      invoice.fees_amount_cents.positive?
     end
 
     def increase_subscription_instance_total_value(invoice)
