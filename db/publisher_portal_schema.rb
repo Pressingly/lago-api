@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_05_29_075046) do
+ActiveRecord::Schema[7.0].define(version: 2024_06_15_093122) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -25,14 +25,6 @@ ActiveRecord::Schema[7.0].define(version: 2024_05_29_075046) do
     t.string "policy_store_id"
     t.string "namespace"
     t.json "schema"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
-  create_table "subscription_charges", force: :cascade do |t|
-    t.string "plan_title"
-    t.integer "subscription_instance_id"
-    t.boolean "is_finalized"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

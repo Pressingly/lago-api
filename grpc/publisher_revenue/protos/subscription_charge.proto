@@ -1,0 +1,6 @@
+syntax = "proto3";
+
+package subscription_charge;
+
+import public "subscription_charge.service.proto";
+

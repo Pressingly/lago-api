@@ -1,0 +1,13 @@
+syntax = "proto3";
+import "subscription_charge.dto.proto";
+
+package subscription_charge;
+
+service SubscriptionChargeGrpcService {
+  rpc CreateSubscriptionCharge (CreateSubscriptionChargeReq) returns (SubscriptionChargeContractStatusRes) {}
+  rpc UpdateSubscriptionCharge (UpdateSubscriptionChargeReq) returns (SubscriptionChargeContractStatusRes) {}
+  rpc FinalizeSubscriptionCharge (FinalizeSubscriptionChargeReq) returns (SubscriptionChargeContractStatusRes) {}
+  rpc GetSubscriptionChargeContractStatus (GetSubscriptionChargeContractStatusReq) returns (SubscriptionChargeContractStatusRes) {}
+  rpc GetSubscriptionChargeStatus (GetSubscriptionChargeStatusReq) returns (SubscriptionChargeStatusRes) {}
+}
+

@@ -17,6 +17,11 @@ module V1
         if authorized_result[:is_authorized]
           create_get_lago_event(authorized_result[:subscription_plan], request)
 
+          SubscriptionCharges::CreateService.call(
+            authorized_result: authorized_result,
+            request_payload: JSON.parse(request.body.read)
+          )
+
           return render(json: success_response(message: "Authorized", extra: authorized_result[:subscription_plan]))
         end
 
