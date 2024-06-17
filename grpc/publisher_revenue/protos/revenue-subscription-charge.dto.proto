@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package subscription_charge;
+package revenue;
 
 enum SubscriptionChargeContractStatus {
   SUBSCRIPTION_CHARGE_CONTRACT_STATUS_IN_PROGRESS = 0;
@@ -15,31 +15,27 @@ enum SubscriptionChargeStatus {
 
 message CreateSubscriptionChargeReq {
   string pinetIdToken = 1;
-  string pinetUserId = 2;
-  string membershipOrgId = 3;
-  string subscriptionInstanceId = 4;
-  int64 amount = 5;
-  int32 fraction = 6;
-  string currencyCode = 7;
-  string description = 8;
+  string membershipOrgId = 2;
+  string subscriptionInstanceId = 3;
+  int32 amount = 4;
+  int32 fraction = 5;
+  string currencyCode = 6;
+  optional string description = 7;
 }
 
 message UpdateSubscriptionChargeReq {
   string subscriptionChargeId = 1;
   string pinetIdToken = 2;
-  string pinetUserId = 3;
-  string membershipOrgId = 4;
-  int64 amount = 5;
-  int32 fraction = 6;
-  string currencyCode = 7;
-  string description = 8;
+  int32 amount = 3;
+  optional string description = 4;
 }
 
 message FinalizeSubscriptionChargeReq {
   string subscriptionChargeId = 1;
-  int64 amount = 2;
+  int32 amount = 2;
   int32 fraction = 3;
   string currencyCode = 4;
+  optional string description = 5;
 }
 
 message GetSubscriptionChargeContractStatusReq {

@@ -1,9 +1,9 @@
 syntax = "proto3";
-import "subscription_charge.dto.proto";
+import "revenue-subscription-charge.dto.proto";
 
-package subscription_charge;
+package revenue;
 
-service SubscriptionChargeGrpcService {
+service RevenueGrpcService {
   rpc CreateSubscriptionCharge (CreateSubscriptionChargeReq) returns (SubscriptionChargeContractStatusRes) {}
   rpc UpdateSubscriptionCharge (UpdateSubscriptionChargeReq) returns (SubscriptionChargeContractStatusRes) {}
   rpc FinalizeSubscriptionCharge (FinalizeSubscriptionChargeReq) returns (SubscriptionChargeContractStatusRes) {}
