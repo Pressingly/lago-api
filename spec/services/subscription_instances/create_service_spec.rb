@@ -16,7 +16,8 @@ RSpec.describe SubscriptionInstances::CreateService, type: :service do
 
         aggregate_failures do
           expect(result).to be_success
-          fee_amount = plan.amount.currency.subunit_to_unit
+          currency = plan.amount.currency
+          fee_amount = plan.amount_cents.fdiv(currency.subunit_to_unit)
 
           subscription_instance = result.subscription_instance
           expect(subscription_instance.started_at.to_i).to eq(subscription.started_at.to_i)
