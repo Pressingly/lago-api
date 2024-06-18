@@ -26,6 +26,8 @@ module SubscriptionCharges
           subscriptionInstanceId: sub_instance.id,
         }
       ))
+    rescue GRPC::BadStatus => e
+      raise StandardError, "Error creating subscription charge: #{e.message}"
     end
 
     attr_reader :subscription
@@ -33,9 +35,12 @@ module SubscriptionCharges
     private
 
     def stub
-      Revenue::RevenueGrpcService::Stub.new(ENV['PUBLISHER_REVENUE_GRPC_URL'], :this_channel_is_insecure)
+      Revenue::RevenueGrpcService::Stub.new(
+        ENV['PUBLISHER_REVENUE_GRPC_URL'],
+        :this_channel_is_insecure
+      )
     rescue GRPC::BadStatus => e
-      abort "ERROR: #{e.message}"
+      raise StandardError, "Error connecting to Revenue Service: #{e.message}"
     end
   end
 end
