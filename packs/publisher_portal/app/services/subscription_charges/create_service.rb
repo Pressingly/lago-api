@@ -17,7 +17,7 @@ module SubscriptionCharges
       # TODO: dynamically set description and fraction
       stub.create_subscription_charge(Revenue::CreateSubscriptionChargeReq.new(
         {
-          amount: sub_instance.total_amount.to_i,
+          amount: sub_instance.total_amount.to_d,
           currencyCode: customer.currency,
           description: "eu reprehenderit aliquip",
           pinetIdToken: customer.pinet_id_token,
