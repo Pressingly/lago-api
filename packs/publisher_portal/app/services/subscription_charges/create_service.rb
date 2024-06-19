@@ -13,13 +13,13 @@ module SubscriptionCharges
     def call
       sub_instance = SubscriptionInstance.find_by(subscription_id: subscription.id)
       customer = Customer.find_by(id: subscription.customer_id)
+      plan = Plan.find_by(id: subscription.plan_id)
 
-      # TODO: dynamically set description and fraction
       stub.create_subscription_charge(Revenue::CreateSubscriptionChargeReq.new(
         {
           amount: sub_instance.total_amount.to_d,
           currencyCode: customer.currency,
-          description: "eu reprehenderit aliquip",
+          description: plan.description,
           pinetIdToken: customer.pinet_id_token,
           subscriptionInstanceId: sub_instance.id,
         }
