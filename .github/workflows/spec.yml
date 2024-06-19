@@ -21,7 +21,7 @@ jobs:
           POSTGRES_PASSWORD: lago
     env:
       RAILS_ENV: test
-      DATABASE_URL: "postgres://lago:lago@localhost:5432/lago"
+      DATABASE_URL: "postgres://lago:changeme@localhost:5432/lago"
       RAILS_MASTER_KEY: ${{ secrets.RAILS_TEST_KEY }}
       SECRET_KEY_BASE: ${{ secrets.SECRET_KEY_BASE }}
       LAGO_API_URL: https://api.lago.dev
