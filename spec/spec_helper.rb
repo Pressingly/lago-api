@@ -35,4 +35,9 @@ RSpec.configure do |config|
   config.before(:each, clickhouse: true) do
     WebMock.disable_net_connect!(allow: ENV.fetch('LAGO_CLICKHOUSE_HOST', 'clickhouse'))
   end
+
+  config.before do
+    grpc_response = instance_double("Revenue::SubscriptionChargeContractStatusRes")
+    allow(SubscriptionCharges::CreateService).to receive(:call).and_return(grpc_response)
+  end
 end
