@@ -35,6 +35,8 @@ module Invoices
 
         invoice.payment_status = invoice.total_amount_cents.positive? ? :pending : :succeeded
         invoice.finalized!
+
+        increase_subscription_instance_total_value(invoice) if should_increase_subscription_instance_total_value?(invoice)
       end
 
       track_invoice_created(invoice)
@@ -143,6 +145,41 @@ module Invoices
 
     def refresh_amounts(credit_amount_cents:)
       invoice.total_amount_cents -= credit_amount_cents
+    end
+
+    def should_increase_subscription_instance_total_value?(invoice)
+      invoice.fees_amount_cents.positive?
+    end
+
+    def increase_subscription_instance_total_value(invoice)
+      return unless current_subscription_instance
+      fee_amount = invoice.fees_amount_cents.fdiv(invoice.fees_amount.currency.subunit_to_unit)
+
+      subscription_instance_item_result = SubscriptionInstanceItems::CreateService.call(
+        subscription_instance: current_subscription_instance,
+        fee_amount:,
+        charge_type: SubscriptionInstanceItem.charge_types[:usage_charge],
+        code: event.code
+      )
+      subscription_instance_item_result.raise_if_error!
+
+      increase_total_value_result = SubscriptionInstances::IncreaseTotalValueService.call(
+        subscription_instance: current_subscription_instance,
+        fee_amount:
+      )
+
+      increase_total_value_result.raise_if_error!
+      if increase_total_value_result.success?
+        # TODO: call subscription charge service
+      end
+    end
+
+    def current_subscription_instance
+      return unless subscription.subscription_instances.any?
+      @current_subscription_instance ||= subscription.subscription_instances
+        .where(status: :active)
+        .where('started_at <= ?', Time.zone.at(timestamp))
+        .first
     end
   end
 end
