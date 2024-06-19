@@ -7,7 +7,7 @@ class SubscriptionInstances::CreateJob < ApplicationJob
     ActiveRecord::Base.transaction do
       result = SubscriptionInstances::CreateService.new(subscription: subscription).call
 
-      # SubscriptionCharges::CreateService.call(subscription: subscription) if result.subscription_instance.total_amount > 0
+      SubscriptionCharges::CreateService.call(subscription: subscription) if result.subscription_instance.total_amount.positive?
 
       result.raise_if_error!
     end

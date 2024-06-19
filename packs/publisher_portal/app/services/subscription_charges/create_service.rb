@@ -17,7 +17,7 @@ module SubscriptionCharges
 
       stub.create_subscription_charge(Revenue::CreateSubscriptionChargeReq.new(
         {
-          amount: sub_instance.total_amount.to_d,
+          amount: sub_instance.total_amount.to_f,
           currencyCode: customer.currency,
           description: plan.description,
           pinetIdToken: customer.pinet_id_token,
