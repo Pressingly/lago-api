@@ -87,8 +87,6 @@ group :development, :test, :staging do
   gem 'factory_bot_rails'
   gem 'faker'
   gem 'timecop'
-  gem 'rswag-api'
-  gem 'rswag-ui'
 end
 
 group :development, :test do
@@ -136,3 +134,7 @@ gem "grpc-tools", "~> 1.63"
 
 # Amazon verified permission
 gem 'aws-sdk-verifiedpermissions', '~> 1.19'
+
+# API documentation
+gem 'rswag-api'
+gem 'rswag-ui'
