@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package revenue;
+
+enum SubscriptionChargeContractStatus {
+  SUBSCRIPTION_CHARGE_CONTRACT_STATUS_IN_PROGRESS = 0;
+  SUBSCRIPTION_CHARGE_CONTRACT_STATUS_APPROVED = 1;
+  SUBSCRIPTION_CHARGE_CONTRACT_STATUS_REJECTED = 2;
+}
+
+enum SubscriptionChargeStatus {
+  SUBSCRIPTION_CHARGE_STATUS_IN_PROGRESS = 0;
+  SUBSCRIPTION_CHARGE_STATUS_FINALIZED = 1;
+}
+
+message CreateSubscriptionChargeReq {
+  string pinetIdToken = 1;
+  string subscriptionInstanceId = 2;
+  double amount = 3;
+  string currencyCode = 4;
+  optional string description = 5;
+}
+
+message UpdateSubscriptionChargeReq {
+  string subscriptionChargeId = 1;
+  string pinetIdToken = 2;
+  double amount = 3;
+  optional string description = 4;
+}
+
+message FinalizeSubscriptionChargeReq {
+  string subscriptionChargeId = 1;
+  double amount = 2;
+  string currencyCode = 3;
+  optional string description = 4;
+}
+
+message GetSubscriptionChargeContractStatusReq {
+  string subscriptionChargeContractId = 1;
+}
+
+message SubscriptionChargeContractStatusRes {
+  string subscriptionChargeId = 1;
+  string subscriptionChargeContractId = 2;
+  SubscriptionChargeContractStatus status = 3;
+}
+
+message GetSubscriptionChargeStatusReq {
+  string subscriptionChargeId = 1;
+}
+
+message SubscriptionChargeStatusRes {
+  string subscriptionChargeId = 1;
+  SubscriptionChargeStatus status = 2;
+}
+
+

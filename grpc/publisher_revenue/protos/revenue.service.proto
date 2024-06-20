@@ -1,0 +1,13 @@
+syntax = "proto3";
+import "revenue-subscription-charge.dto.proto";
+
+package revenue;
+
+service RevenueGrpcService {
+  rpc CreateSubscriptionCharge (CreateSubscriptionChargeReq) returns (SubscriptionChargeContractStatusRes) {}
+  rpc UpdateSubscriptionCharge (UpdateSubscriptionChargeReq) returns (SubscriptionChargeContractStatusRes) {}
+  rpc FinalizeSubscriptionCharge (FinalizeSubscriptionChargeReq) returns (SubscriptionChargeContractStatusRes) {}
+  rpc GetSubscriptionChargeContractStatus (GetSubscriptionChargeContractStatusReq) returns (SubscriptionChargeContractStatusRes) {}
+  rpc GetSubscriptionChargeStatus (GetSubscriptionChargeStatusReq) returns (SubscriptionChargeStatusRes) {}
+}
+
