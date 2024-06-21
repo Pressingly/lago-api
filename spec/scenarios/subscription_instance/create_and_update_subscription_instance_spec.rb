@@ -72,7 +72,6 @@ describe 'Create and update subscription instance Scenario', :scenarios, type: :
       expect(subscription).to be_present
 
       subscription_instance = subscription.subscription_instances.first
-      debugger
       subscription_instance_item = subscription_instance.subscription_instance_items.where(charge_type: :usage_charge).first
       expect(subscription_instance_item).to be_present
 

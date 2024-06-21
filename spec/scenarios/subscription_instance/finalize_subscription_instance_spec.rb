@@ -119,7 +119,5 @@ describe 'Finalize Subscription Instance Scenario', :scenarios, type: :request d
     end
   end
 
-  context 'when plan has base amount and usage amount' do
-    # TODO: Implement this scenario
-  end
+  # TODO implement the scenario when plan has base amount and usage charges
 end
