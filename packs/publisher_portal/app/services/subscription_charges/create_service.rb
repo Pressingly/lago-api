@@ -15,7 +15,6 @@ module SubscriptionCharges
         .find_by(subscriptions: { id: subscription_instance.subscription_id})
       plan = Plan.joins(:subscriptions)
         .find_by(subscriptions: {id: subscription_instance.subscription_id})
-      puts "subscription_instance: #{subscription_instance.inspect}"
 
       stub.create_subscription_charge(Revenue::CreateSubscriptionChargeReq.new(
         {

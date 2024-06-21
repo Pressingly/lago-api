@@ -20,7 +20,7 @@ module EntitlementAdapter
           action_id: get_payload_action,
         },
         resource: {
-          entity_type: resource_entity_type,
+          entity_type: article_entity_type,
           entity_id: resource_type,
         },
         context: {
@@ -39,6 +39,11 @@ module EntitlementAdapter
               identifier: {
                 entity_type: article_entity_type,
                 entity_id: resource_type,
+              },
+              attributes: {
+                category: {
+                  string: resource_category
+                }
               },
               parents: [
                 {
@@ -82,6 +87,10 @@ module EntitlementAdapter
 
     def article_entity_type
       "#{namespace}::Article"
+    end
+
+    def resource_category
+      payload["resource"]["category"]
     end
 
     def action_type
