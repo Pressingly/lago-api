@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'revenue.service_services_pb'
 
 RSpec.describe SubscriptionCharges::CreateService do
-  subject(:create_service) { described_class.new(subscription: subscription) }
+  subject(:create_service) { described_class.new(subscription_instance: sub_instance) }
 
   let(:subscription) { create(:subscription) }
   let(:sub_instance) { create(:subscription_instance) }

@@ -37,7 +37,7 @@ RSpec.describe V1::Entitlement::AuthorizationController, type: :request do
 
     let(:base_params) do
       {
-        externalUserId: customer.external_id,
+        externalCustomerId: customer.external_id,
         publisherId: "Publisher id we create for the publisher when they are onboarded",
         actionName: "read",
         context: {},
@@ -94,8 +94,8 @@ RSpec.describe V1::Entitlement::AuthorizationController, type: :request do
       end
     end
 
-    context 'when no externalUserId is provided' do
-      let(:params) { base_params.except(:externalUserId) }
+    context 'when no externalCustomerId is provided' do
+      let(:params) { base_params.except(:externalCustomerId) }
 
       it 'returns a 422 status code' do
         post('/v1/entitlement/authorize', params: params.to_json, headers: headers)

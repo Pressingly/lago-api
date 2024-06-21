@@ -6,7 +6,7 @@ RSpec.describe EntitlementAdapter::ConverterService, type: :service do
   subject(:converter_service) { described_class.new(payload:, policy_store_id:) }
 
   let(:base_payload) {
-    {"externalUserId" => "012646d9-1b82-43e3-8ef9-60c538091149",
+    {"externalCustomerId" => "012646d9-1b82-43e3-8ef9-60c538091149",
      "publisherId" => "Publisher id we create for the publisher when they are onboarded",
      "actionName" => "read",
      "context" => {},
@@ -28,8 +28,8 @@ RSpec.describe EntitlementAdapter::ConverterService, type: :service do
       policy_store
     end
 
-    context 'when externalUserId exist' do
-      it 'principal entity id is the same with externalUserId in payload' do
+    context 'when externalCustomerId exist' do
+      it 'principal entity id is the same with externalCustomerId in payload' do
         result = converter_service.call
         aggregate_failures do
           expect(result[:principal][:entity_id]).to eq("012646d9-1b82-43e3-8ef9-60c538091149")
@@ -37,8 +37,8 @@ RSpec.describe EntitlementAdapter::ConverterService, type: :service do
       end
     end
 
-    context 'when externalUserId does not exist' do
-      let(:payload) { base_payload.except("externalUserId") }
+    context 'when externalCustomerId does not exist' do
+      let(:payload) { base_payload.except("externalCustomerId") }
 
       it 'principal entity id is nil' do
         result = converter_service.call
