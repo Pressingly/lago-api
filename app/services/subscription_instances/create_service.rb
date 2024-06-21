@@ -2,16 +2,12 @@
 
 module SubscriptionInstances
   class CreateService < BaseService
-    INTERVALS_COINCIDE_WITH_SUBSCRIPTION_START = %i[
-      weekly
-      monthly
-      yearly
-      quarterly
-    ]
-    def initialize(subscription:)
-      super
-
+    def initialize(subscription:, started_at:, ended_at: nil)
       @subscription = subscription
+      @started_at = started_at
+      @ended_at = ended_at
+
+      super
     end
 
     def call
@@ -25,7 +21,10 @@ module SubscriptionInstances
           if new_item_creation_result.success?
             subscription_instance_item = new_item_creation_result.subscription_instance_item
 
-            result.subscription_instance = update_total_amount(result.subscription_instance, subscription_instance_item.fee_amount)
+            result.subscription_instance = update_total_amount(
+              result.subscription_instance,
+              subscription_instance_item.fee_amount
+            )
           end
         end
       end
@@ -39,7 +38,7 @@ module SubscriptionInstances
 
     private
 
-    attr_reader :subscription
+    attr_reader :subscription, :started_at, :ended_at
     delegate :customer, :plan, to: :subscription
 
     def valid?(subscription:)
@@ -52,7 +51,7 @@ module SubscriptionInstances
       new_subscription_instance = SubscriptionInstance.new(
         subscription:,
         started_at:,
-        ended_at: nil,
+        ended_at:,
         status: SubscriptionInstance.statuses[:active],
         total_amount: 0.0
       )
@@ -64,24 +63,6 @@ module SubscriptionInstances
       rescue ActiveRecord::RecordInvalid => e
         result.record_validation_failure!(record: e.record)
       end
-    end
-
-    def started_at
-      return subscription.started_at if INTERVALS_COINCIDE_WITH_SUBSCRIPTION_START.include?(plan.interval.to_sym)
-
-      nil
-    end
-
-    def ended_at
-      # depend on billing time of subscription
-      # how do i calculate the ending_at?
-      # is there any existing service that can help me with this?
-      # exmaple:
-      # if subscrription.billing_time == 'anniversary' && plan.interval == 'weekly'
-      #   ending_at = subscription.ending_at + 1.week
-      # else
-      #   ending_at = Time.current.end_of_week
-      # end
     end
 
     def create_new_subscription_instance_item(subscription_instance)
