@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe SubscriptionInstances::CreateService, type: :service do
-  subject(:create_service) { described_class.new(subscription:) }
+  subject(:create_service) { described_class.new(subscription:, started_at: subscription.started_at) }
 
   let(:amount_cents) { 100 }
   let(:subscription) { create(:subscription, plan:) }
