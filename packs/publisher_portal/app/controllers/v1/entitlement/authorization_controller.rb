@@ -33,7 +33,7 @@ module V1
 
       def authorization_params
         params.permit(
-          :userId,
+          :externalCustomerId,
           :publisherId,
           :actionName,
           :timestamp,
@@ -70,7 +70,7 @@ module V1
 
       def success_response(code: 200, message: "OK", extra: {})
         {
-          status: "Alow",
+          status: "Allow",
           code: code,
           message: message,
           extra: extra

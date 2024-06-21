@@ -10,7 +10,7 @@ RSpec.describe ConsumptionEvent::EmitService, type: :service do
   let(:policy) { create(:authorization_policy, plan_id: plan.id) }
   let(:subscription_plan) { plan.attributes }
   let(:customer) { create(:customer) }
-  let(:request) { instance_double('ActionDispatch::Request', body: StringIO.new("{\"userId\": \"#{customer.id}\"}"), user_agent: 'TestAgent', remote_ip: '127.0.0.1') }
+  let(:request) { instance_double('ActionDispatch::Request', body: StringIO.new("{\"externalCustomerId\": \"#{customer.external_id}\"}"), user_agent: 'TestAgent', remote_ip: '127.0.0.1') }
   let(:subscription) { create(:subscription, plan: plan, customer_id: customer.id) }
   let(:billable_metric) { create(:billable_metric, organization: organization) }
   let(:charge) { create(:standard_charge, plan: plan, billable_metric: billable_metric) }
