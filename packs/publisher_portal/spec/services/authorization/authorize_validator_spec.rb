@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe Authorization::AuthorizeValidator, type: :model do
   let(:valid_attributes) do
     {
-      userId: 'user1',
+      externalUserId: 'user1',
       publisherId: 'publisher1',
       actionName: 'action1',
       context: {},
@@ -19,7 +19,7 @@ RSpec.describe Authorization::AuthorizeValidator, type: :model do
     end
 
     it 'is not valid without a user_id' do
-      validator = described_class.new(valid_attributes.except(:userId))
+      validator = described_class.new(valid_attributes.except(:externalUserId))
       expect(validator).not_to be_valid
     end
 

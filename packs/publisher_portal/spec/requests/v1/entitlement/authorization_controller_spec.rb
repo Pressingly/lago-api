@@ -23,13 +23,13 @@ RSpec.describe V1::Entitlement::AuthorizationController, type: :request do
     end
 
     let(:is_authorized_resp) {
-      {
+      OpenStruct.new(
         decision: "ALLOW",
         determining_policies: [
-          {policy_id: policy.cedar_policy_id},
+          OpenStruct.new(policy_id: policy.cedar_policy_id),
         ],
         errors: []
-      }
+      )
     }
     let(:avp_client) do
       instance_double(Aws::VerifiedPermissions::Client, is_authorized: is_authorized_resp)
@@ -37,7 +37,7 @@ RSpec.describe V1::Entitlement::AuthorizationController, type: :request do
 
     let(:base_params) do
       {
-        userId: customer.id,
+        externalUserId: customer.external_id,
         publisherId: "Publisher id we create for the publisher when they are onboarded",
         actionName: "read",
         context: {},
@@ -75,11 +75,13 @@ RSpec.describe V1::Entitlement::AuthorizationController, type: :request do
 
     context 'when no Cedar return unauthorized' do
       let(:is_authorized_resp) {
-        {
+        OpenStruct.new(
           decision: "DENY",
-          determining_policies: [],
+          determining_policies: [
+            OpenStruct.new(policy_id: policy.cedar_policy_id),
+          ],
           errors: []
-        }
+        )
       }
       let(:avp_client) do
         instance_double(Aws::VerifiedPermissions::Client, is_authorized: is_authorized_resp)
@@ -92,8 +94,8 @@ RSpec.describe V1::Entitlement::AuthorizationController, type: :request do
       end
     end
 
-    context 'when no userId is provided' do
-      let(:params) { base_params.except(:userId) }
+    context 'when no externalUserId is provided' do
+      let(:params) { base_params.except(:externalUserId) }
 
       it 'returns a 422 status code' do
         post('/v1/entitlement/authorize', params: params.to_json, headers: headers)

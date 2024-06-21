@@ -18,13 +18,13 @@ paths:
             schema:
               type: object
               required:
-                - userId
+                - externalUserId
                 - publisherId
                 - actionName
                 - resource
                 - timestamp
               properties:
-                userId:
+                externalUserId:
                   type: string
                 publisherId:
                   type: string
