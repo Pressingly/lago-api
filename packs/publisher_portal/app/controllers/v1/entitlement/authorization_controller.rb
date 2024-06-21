@@ -33,7 +33,7 @@ module V1
 
       def authorization_params
         params.permit(
-          :userId,
+          :externalUserId,
           :publisherId,
           :actionName,
           :timestamp,

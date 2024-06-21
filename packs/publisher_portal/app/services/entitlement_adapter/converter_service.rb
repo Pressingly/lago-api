@@ -4,7 +4,7 @@ module EntitlementAdapter
       @payload = payload
       @policy_store = PolicyStore.find_by(id: policy_store_id)
 
-      @user_id = payload["userId"]
+      @external_user_id = payload["externalUserId"]
       super
     end
 
@@ -13,7 +13,7 @@ module EntitlementAdapter
         policy_store_id: get_policy_store_id,
         principal: {
           entity_type: principal_entity_type,
-          entity_id: @user_id,
+          entity_id: @external_user_id,
         },
         action: {
           action_type: action_type,
@@ -31,7 +31,7 @@ module EntitlementAdapter
             {
               identifier: {
                 entity_type: principal_entity_type,
-                entity_id: @user_id,
+                entity_id: @external_user_id,
               },
               parents: map_plans_to_principals
             },
@@ -115,9 +115,11 @@ module EntitlementAdapter
     end
 
     def all_plans_by_user
-      return [] if @user_id.nil?
+      return [] if @external_user_id.nil?
 
-      Plan.joins(:subscriptions).where(subscriptions: { customer_id: @user_id }).uniq
+      customer_id = Customer.find_by(external_id: @external_user_id)&.id
+
+      Plan.joins(:subscriptions).where(subscriptions: { customer_id: customer_id }).uniq
     end
 
     def map_plans_to_principals

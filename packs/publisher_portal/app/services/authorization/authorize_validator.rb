@@ -2,13 +2,13 @@ module Authorization
   class AuthorizeValidator
     include ActiveModel::Model
 
-    attr_accessor :user_id, :publisher_id, :action_name, :context, :resource, :timestamp
+    attr_accessor :external_user_id, :publisher_id, :action_name, :context, :resource, :timestamp
 
-    validates :user_id, :publisher_id, :action_name, :timestamp, presence: true
+    validates :external_user_id, :publisher_id, :action_name, :timestamp, presence: true
 
     validate :resource_validations
     def initialize(params)
-      @user_id = params[:userId]
+      @external_user_id = params[:externalUserId]
       @publisher_id = params[:publisherId]
       @action_name = params[:actionName]
       @context = params[:context]
