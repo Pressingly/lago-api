@@ -11,6 +11,8 @@ module Invoices
       @recurring = recurring
 
       @context = context
+      @charge_fees = []
+      @subscription_fee = []
 
       super
     end
@@ -34,10 +36,20 @@ module Invoices
             charges_duration: date_service.charges_duration_in_days,
           }
 
-          create_subscription_fee(subscription, boundaries) if should_create_subscription_fee?(subscription)
-          create_charges_fees(subscription, boundaries) if should_create_charge_fees?(subscription)
+          subscription_fee = create_subscription_fee(subscription, boundaries) if should_create_subscription_fee?(subscription)
+          charges_fees = create_charges_fees(subscription, boundaries) if should_create_charge_fees?(subscription)
           if should_create_minimum_commitment_true_up_fee?(invoice_subscription)
             create_minimum_commitment_true_up_fee(invoice_subscription)
+          end
+
+          current_subscription_instance = subscription.subscription_instances
+            .where('started_at < ? AND ended_at < ?', invoice_subscription.timestamp, invoice_subscription.timestamp)
+            .where(status: :active)
+            .last
+
+          if recurring
+            finalize_current_subscription_instance(current_subscription_instance, subscription_fee, charges_fees)
+            transition_to_new_period(subscription, invoice_subscription.timestamp)
           end
         end
 
@@ -88,6 +100,8 @@ module Invoices
     def create_subscription_fee(subscription, boundaries)
       fee_result = Fees::SubscriptionService.new(invoice:, subscription:, boundaries:).create
       fee_result.raise_if_error!
+
+      fee_result.fee
     end
 
     def charge_boundaries_valid?(boundaries)
@@ -97,7 +111,7 @@ module Invoices
 
     def create_charges_fees(subscription, boundaries)
       return unless charge_boundaries_valid?(boundaries)
-
+      charges_fees = []
       subscription
         .plan
         .charges
@@ -111,7 +125,10 @@ module Invoices
 
           fee_result = Fees::ChargeService.new(invoice:, charge:, subscription:, boundaries:).create
           fee_result.raise_if_error!
+          charges_fees += fee_result.fees
         end
+
+      charges_fees
     end
 
     def should_not_create_charge_fee?(charge, subscription)
@@ -266,6 +283,21 @@ module Invoices
 
     def not_in_finalizing_process?
       (invoice.draft? || invoice.voided?) && context != :finalize
+    end
+
+    def finalize_current_subscription_instance(subscription_instance, subscription_fee, charges_fees)
+      SubscriptionInstances::FinalizeJob.perform_later(
+        subscription_instance:,
+        subscription_fee:,
+        charges_fees:
+      )
+    end
+
+    def transition_to_new_period(subscription, timestamp)
+      SubscriptionInstances::TransitionJob.perform_later(
+        subscription:,
+        timestamp:
+      )
     end
   end
 end
