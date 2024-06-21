@@ -59,7 +59,7 @@ module ConsumptionEvent
     end
 
     def create_params(plan_id, req_payload)
-      customer = Customer.find_by(id: req_payload["userId"])
+      customer = Customer.find_by(external_id: req_payload["externalCustomerId"])
       subscription = Subscription.find_by(plan_id: plan_id, customer_id: customer.id)
 
       # TODO: a plan can have multiple billable metrics. Do we emit one consumption event per billable metric?

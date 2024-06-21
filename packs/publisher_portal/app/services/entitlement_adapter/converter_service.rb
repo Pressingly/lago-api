@@ -4,7 +4,7 @@ module EntitlementAdapter
       @payload = payload
       @policy_store = PolicyStore.find_by(id: policy_store_id)
 
-      @user_id = payload["userId"]
+      @external_customer_id = payload["externalCustomerId"]
       super
     end
 
@@ -13,14 +13,14 @@ module EntitlementAdapter
         policy_store_id: get_policy_store_id,
         principal: {
           entity_type: principal_entity_type,
-          entity_id: @user_id,
+          entity_id: @external_customer_id,
         },
         action: {
           action_type: action_type,
           action_id: get_payload_action,
         },
         resource: {
-          entity_type: resource_entity_type,
+          entity_type: article_entity_type,
           entity_id: resource_type,
         },
         context: {
@@ -31,7 +31,7 @@ module EntitlementAdapter
             {
               identifier: {
                 entity_type: principal_entity_type,
-                entity_id: @user_id,
+                entity_id: @external_customer_id,
               },
               parents: map_plans_to_principals
             },
@@ -39,6 +39,11 @@ module EntitlementAdapter
               identifier: {
                 entity_type: article_entity_type,
                 entity_id: resource_type,
+              },
+              attributes: {
+                category: {
+                  string: resource_category
+                }
               },
               parents: [
                 {
@@ -84,6 +89,10 @@ module EntitlementAdapter
       "#{namespace}::Article"
     end
 
+    def resource_category
+      payload["resource"]["category"]
+    end
+
     def action_type
       "#{namespace}::Action"
     end
@@ -106,9 +115,11 @@ module EntitlementAdapter
     end
 
     def all_plans_by_user
-      return [] if @user_id.nil?
+      return [] if @external_customer_id.nil?
 
-      Plan.joins(:subscriptions).where(subscriptions: { customer_id: @user_id }).uniq
+      customer_id = Customer.find_by(external_id: @external_customer_id)&.id
+
+      Plan.joins(:subscriptions).where(subscriptions: { customer_id: customer_id }).uniq
     end
 
     def map_plans_to_principals
