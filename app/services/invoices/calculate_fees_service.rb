@@ -47,7 +47,7 @@ module Invoices
             .where(status: :active)
             .last
 
-          if recurring
+          if recurring && subscription.active? && current_subscription_instance
             finalize_current_subscription_instance(current_subscription_instance, subscription_fee, charges_fees)
             transition_to_new_period(subscription, invoice_subscription.timestamp)
           end

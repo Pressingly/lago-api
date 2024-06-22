@@ -59,7 +59,7 @@ describe 'Finalize Subscription Instance Scenario', :scenarios, type: :request d
           expect(subscription.subscription_instances.count).to eq(2) # 1 for the initial subscription instance and 1 for the new one
 
           finalized_subscription_instance = subscription.subscription_instances.where(status: :finalized).first
-          expect(finalized_subscription_instance).to
+          expect(finalized_subscription_instance).to be_present
           expect(finalized_subscription_instance.total_amount).to eq(plan_in_advance.amount_cents.fdiv(currency.subunit_to_unit))
 
           active_subscription_instance = subscription.subscription_instances.where(status: :active).first

@@ -10,6 +10,8 @@ module SubscriptionInstances
     end
 
     def call
+      return result.validation_failure!(errors: { subscription_instance: ['is_not_active'] }) unless subscription_instance.active?
+
       ActiveRecord::Base.transaction do
         create_subscription_instance_items
         increase_total_amount if total_amount.positive?

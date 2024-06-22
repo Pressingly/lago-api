@@ -11,7 +11,7 @@ module SubscriptionInstances
     end
 
     def call
-      return result unless valid?(subscription:)
+      return result.validation_failure!(errors: { subscription: ['is_not_active'] }) unless subscription.active?
 
       ActiveRecord::Base.transaction do
         result.subscription_instance = create_subscription_instance
@@ -40,13 +40,6 @@ module SubscriptionInstances
 
     attr_reader :subscription, :started_at, :ended_at
     delegate :customer, :plan, to: :subscription
-
-    def valid?(subscription:)
-      return result.validation_failure!(errors: { subscription: ['is_not_active'] }) unless subscription.active?
-
-      result
-    end
-
     def create_subscription_instance
       new_subscription_instance = SubscriptionInstance.new(
         subscription:,
