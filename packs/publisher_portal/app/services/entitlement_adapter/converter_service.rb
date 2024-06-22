@@ -5,6 +5,7 @@ module EntitlementAdapter
       @policy_store = PolicyStore.find_by(id: policy_store_id)
 
       @external_customer_id = payload["externalCustomerId"]
+      puts "@external_customer_id: #{@external_customer_id}"
       super
     end
 
