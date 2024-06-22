@@ -652,5 +652,20 @@ RSpec.describe Subscriptions::CreateService, type: :service do
         end
       end
     end
+
+    context 'when async is false' do # sync process
+      subject(:create_service_sync) { described_class.new(customer:, plan:, params:, async: false) }
+
+      before do
+        allow(SubscriptionInstances::CreateJob).to receive(:perform_now)
+      end
+
+      it 'returns the result' do
+        result = create_service_sync.call
+
+        expect(result).to be_success
+        expect(SubscriptionInstances::CreateJob).to have_received(:perform_now).with(result.subscription)
+      end
+    end
   end
 end
