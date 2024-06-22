@@ -2,7 +2,7 @@
 
 module Subscriptions
   class CreateService < BaseService
-    def initialize(customer:, plan:, params:, async: true)
+    def initialize(customer:, plan:, params:, async: false)
       super
 
       @customer = customer

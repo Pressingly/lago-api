@@ -36,11 +36,11 @@ RSpec.describe Api::V1::SubscriptionsController, type: :request do
       }
     end
 
-    it 'creates a subscription and enqueues a job to create a subscription instance' do
+    it 'creates a subscription and then create a subscription instance' do
       plan.pay_in_advance = true
       plan.save!
 
-      allow(SubscriptionInstances::CreateJob).to receive(:perform_later).and_call_original
+      allow(SubscriptionInstances::CreateJob).to receive(:perform_now).and_call_original
       post_with_token(organization, '/api/v1/subscriptions', { subscription: params })
 
       expect(response).to have_http_status(:ok)
@@ -48,10 +48,7 @@ RSpec.describe Api::V1::SubscriptionsController, type: :request do
       subscription = Subscription.find_by(external_id: json[:subscription][:external_id])
       expect(subscription).not_to be_nil
 
-      expect(SubscriptionInstances::CreateJob).to have_received(:perform_later).with(subscription)
-
-      # Perform the job immediately to verify the instance creation
-      perform_enqueued_jobs { SubscriptionInstances::CreateJob.perform_later(subscription) }
+      expect(SubscriptionInstances::CreateJob).to have_received(:perform_now).with(subscription)
 
       subscription_instance = SubscriptionInstance.find_by(subscription: subscription)
       subscription_instance_items = SubscriptionInstanceItem.where(subscription_instance: subscription_instance)
@@ -419,53 +416,6 @@ RSpec.describe Api::V1::SubscriptionsController, type: :request do
         expect(json[:subscriptions].count).to eq(1)
         expect(json[:subscriptions].first[:lago_id]).to eq(subscription3.id)
       end
-    end
-  end
-
-  describe 'create_sync' do
-    let(:subscription_at) { Time.current.iso8601 }
-    let(:ending_at) { (Time.current + 1.year).iso8601 }
-    let(:plan_code) { plan.code }
-
-    let(:params) do
-      {
-        external_customer_id: customer.external_id,
-        plan_code:,
-        name: 'subscription name',
-        external_id: SecureRandom.uuid,
-        billing_time: 'anniversary',
-        subscription_at:,
-        ending_at:,
-        plan_overrides: {
-          amount_cents: 100,
-          name: 'overridden name',
-          minimum_commitment: {
-            invoice_display_name: commitment_invoice_display_name,
-            amount_cents: commitment_amount_cents,
-          },
-        },
-      }
-    end
-
-    it 'creates a subscription and a subscription instance synchronously' do
-      plan.pay_in_advance = true
-      plan.save!
-
-      allow(SubscriptionInstances::CreateJob).to receive(:perform_now).and_call_original
-      post_with_token(organization, '/api/v1/subscriptions/sync', { subscription: params })
-
-      expect(response).to have_http_status(:ok)
-
-      subscription = Subscription.find_by(external_id: json[:subscription][:external_id])
-      expect(subscription).not_to be_nil
-
-      expect(SubscriptionInstances::CreateJob).to have_received(:perform_now).with(subscription)
-
-      subscription_instance = SubscriptionInstance.find_by(subscription: subscription)
-      subscription_instance_items = SubscriptionInstanceItem.where(subscription_instance: subscription_instance)
-      expect(subscription_instance).not_to be_nil
-      expect(subscription_instance_items.count).to eq(1)
-      expect(subscription_instance.subscription).to eq(subscription)
     end
   end
 end

@@ -82,9 +82,6 @@ Rails.application.routes.draw do
         get :public_key, on: :collection
         get :json_public_key, on: :collection
       end
-
-      # Sync APIs
-      post '/subscriptions/sync', to: 'subscriptions#create_sync'
     end
   end
 
