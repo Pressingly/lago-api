@@ -21,7 +21,7 @@ RSpec.describe SubscriptionInstances::IncreaseTotalValueService, type: :service 
 
       it 'updates total_amount correctly with concurrent threads' do
         threads = Array.new(thread_count) do
-          Thread.new do
+          Thread.new do # rubocop:disable ThreadSafety/NewThread
             sleep(rand(0.1..0.5)) # Simulate some processing time
             described_class.new(subscription_instance: subscription_instance, fee_amount: fee_amount).call
           end
