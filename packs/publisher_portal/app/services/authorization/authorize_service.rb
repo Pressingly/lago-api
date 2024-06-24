@@ -27,6 +27,8 @@ module Authorization
         resp[:subscription_plan] = best_plan
       end
 
+      Rails.logger.info("AVP result: #{authorized_resp.inspect}")
+
       resp
     end
 
