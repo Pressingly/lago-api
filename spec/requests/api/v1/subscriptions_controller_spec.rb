@@ -36,7 +36,7 @@ RSpec.describe Api::V1::SubscriptionsController, type: :request do
       }
     end
 
-    it 'creates a subscription and then create a subscription instance' do
+    it 'creates a subscription and then creates a subscription instance' do
       plan.pay_in_advance = true
       plan.save!
 
