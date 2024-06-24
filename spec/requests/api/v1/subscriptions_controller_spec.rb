@@ -36,11 +36,11 @@ RSpec.describe Api::V1::SubscriptionsController, type: :request do
       }
     end
 
-    it 'creates a subscription instance and enqueues a job to create a subscription instance' do
+    it 'creates a subscription and then creates a subscription instance' do
       plan.pay_in_advance = true
       plan.save!
 
-      allow(SubscriptionInstances::CreateJob).to receive(:perform_later).and_call_original
+      allow(SubscriptionInstances::CreateJob).to receive(:perform_now).and_call_original
       post_with_token(organization, '/api/v1/subscriptions', { subscription: params })
 
       expect(response).to have_http_status(:ok)
@@ -48,10 +48,7 @@ RSpec.describe Api::V1::SubscriptionsController, type: :request do
       subscription = Subscription.find_by(external_id: json[:subscription][:external_id])
       expect(subscription).not_to be_nil
 
-      expect(SubscriptionInstances::CreateJob).to have_received(:perform_later).with(subscription)
-
-      # Perform the job immediately to verify the instance creation
-      perform_enqueued_jobs { SubscriptionInstances::CreateJob.perform_later(subscription) }
+      expect(SubscriptionInstances::CreateJob).to have_received(:perform_now).with(subscription)
 
       subscription_instance = SubscriptionInstance.find_by(subscription: subscription)
       subscription_instance_items = SubscriptionInstanceItem.where(subscription_instance: subscription_instance)
