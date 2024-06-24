@@ -18,7 +18,7 @@ module ConsumptionEvent
 
       return if event_params[:code].blank?
 
-      result = ::Events::CreateService.call(
+      result = ::Events::CreateSyncService.call(
         organization: current_organization(subscription_plan["organization_id"]),
         params: event_params,
         timestamp: Time.current.to_f,
