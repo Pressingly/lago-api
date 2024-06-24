@@ -116,7 +116,7 @@ module Subscriptions
       end
 
       if new_subscription.active?
-        after_commit { process_subscription_instance_creation(new_subscription) }
+        after_commit { create_subscription_instance(new_subscription) }
       end
 
       if should_be_billed_today?(new_subscription)
