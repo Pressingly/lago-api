@@ -284,7 +284,7 @@ module Subscriptions
       billable_subscriptions
     end
 
-    def process_subscription_instance_creation(subscription)
+    def create_subscription_instance(subscription)
       base_job = SubscriptionInstances::CreateJob
       async ? base_job.perform_later(subscription) : base_job.perform_now(subscription)
     end
