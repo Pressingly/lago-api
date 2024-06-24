@@ -5,7 +5,7 @@ require 'rails_helper'
 describe 'Finalize Subscription Instance Scenario', :scenarios, type: :request do
   let(:organization) { create(:organization, webhook_url: false, default_currency: 'USD') }
   let(:customer) { create(:customer, organization:, currency: 'USD') }
-  let(:billable_metric) { create(:billable_metric, organization:) }
+  let(:billable_metric) { create(:billable_metric, organization:, aggregation_type: 'count_agg') }
   let(:subscription_at) { DateTime.new(2024, 6, 20, 10, 30) }
   let(:plan_in_advance) do
     create(
@@ -119,5 +119,63 @@ describe 'Finalize Subscription Instance Scenario', :scenarios, type: :request d
     end
   end
 
-  # TODO implement the scenario when plan has base amount and usage charges
+  context 'when plan is "pay in advance" and billable metric is "pay in arreas"' do
+    let(:charge) {
+      create(:standard_charge,
+        billable_metric: billable_metric,
+        plan: plan_in_advance,
+        pay_in_advance: false,
+        properties: { amount: '0.5' })
+    }
+
+    let(:number_of_events) { 10 }
+
+    before do
+      charge
+    end
+
+    it 'finalizes subscription instance correctly' do
+      travel_to(subscription_at) do
+        create_subscription(
+          external_customer_id: customer.external_id,
+          external_id: "#{customer.external_id}_1",
+          plan_code: plan_in_advance.code,
+          billing_time: :anniversary,
+          subscription_at: subscription_at.iso8601
+        )
+
+        subscription = Subscription.find_by(external_id: "#{customer.external_id}_1")
+        expect(subscription.subscription_instances.count).to eq(1)
+
+        subscription_instance = subscription.subscription_instances.first
+        expect(subscription_instance.status.to_sym).to eq(:active)
+        expect(subscription_instance.total_amount).to eq(plan_in_advance.amount_cents.fdiv(currency.subunit_to_unit))
+      end
+
+      subscription = Subscription.find_by(external_id: "#{customer.external_id}_1")
+
+      (1..number_of_events).each do |hour|
+        travel_to(subscription_at + hour.hours) do
+          create_event(
+            code: billable_metric.code,
+            transaction_id: SecureRandom.uuid,
+            external_subscription_id: subscription.external_id
+          )
+        end
+      end
+
+      travel_to(subscription_at + 1.week) do
+        Subscriptions::BillingService.call
+        perform_all_enqueued_jobs
+
+        subscription.reload
+        finalized_subscription_instance = subscription.subscription_instances.where(status: :finalized).first
+        expect(finalized_subscription_instance).to be_present
+
+        # The total amount will include the base charge and the usage charge during the billing period
+        expected_amount = plan_in_advance.amount_cents.fdiv(currency.subunit_to_unit) + BigDecimal(charge.properties['amount']) * number_of_events
+        expect(finalized_subscription_instance.total_amount).to eq(expected_amount)
+      end
+    end
+  end
 end
