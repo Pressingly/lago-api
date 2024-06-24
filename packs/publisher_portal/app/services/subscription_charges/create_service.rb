@@ -20,7 +20,7 @@ module SubscriptionCharges
         {
           amount: subscription_instance.total_amount.to_f,
           currencyCode: customer.currency,
-          # version_number: subscription_instance.version_number,
+          version_number: subscription_instance.version_number,
           description: plan.description,
           pinetIdToken: customer.pinet_id_token,
           subscriptionInstanceId: subscription_instance.id,
