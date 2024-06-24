@@ -13,6 +13,8 @@ module Authorization
       authorized_resp = client.is_authorized(payload)
       policies = authorized_resp.determining_policies.map { |p| p.policy_id }
       plans = get_plans_by_policies(policies)
+      Rails.logger.info("Customer subscription plans: #{plans.inspect}")
+
       resp = {
         is_authorized: authorized_resp.decision == 'ALLOW',
         subscription_plan: nil
@@ -26,6 +28,8 @@ module Authorization
         best_plan = select_the_best_plan(plans)
         resp[:subscription_plan] = best_plan
       end
+
+      Rails.logger.info("AVP result: #{authorized_resp.inspect}")
 
       resp
     end
