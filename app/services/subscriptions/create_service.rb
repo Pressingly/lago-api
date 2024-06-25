@@ -2,12 +2,13 @@
 
 module Subscriptions
   class CreateService < BaseService
-    def initialize(customer:, plan:, params:)
+    def initialize(customer:, plan:, params:, async: false)
       super
 
       @customer = customer
       @plan = plan
       @params = params
+      @async = async
 
       @name = params[:name].to_s.strip
       @subscription_at = params[:subscription_at] || Time.current
@@ -63,7 +64,8 @@ module Subscriptions
       :billing_time,
       :external_id,
       :current_subscription,
-      :plan_overrides
+      :plan_overrides,
+      :async
 
     def valid?(args)
       Subscriptions::ValidateService.new(result, **args).valid?
@@ -111,6 +113,10 @@ module Subscriptions
         new_subscription.mark_as_active!(new_subscription.subscription_at)
       else
         new_subscription.mark_as_active!
+      end
+
+      if new_subscription.active?
+        after_commit { create_subscription_instance(new_subscription) }
       end
 
       if should_be_billed_today?(new_subscription)
@@ -276,6 +282,11 @@ module Subscriptions
       billable_subscriptions << new_subscription if plan.pay_in_advance? && !new_subscription.in_trial_period?
 
       billable_subscriptions
+    end
+
+    def create_subscription_instance(subscription)
+      base_job = SubscriptionInstances::CreateJob
+      async ? base_job.perform_later(subscription) : base_job.perform_now(subscription)
     end
   end
 end
