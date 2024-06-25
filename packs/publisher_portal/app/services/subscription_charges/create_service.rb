@@ -27,7 +27,7 @@ module SubscriptionCharges
       stub.create_subscription_charge(Revenue::CreateSubscriptionChargeReq.new(payload))
       Rails.logger.info("Subcription charge creation payload: #{payload}")
     rescue GRPC::BadStatus => e
-      raise StandardError, "Error creating subscription charge: #{e.message}"
+      raise StandardError, "Error updating subscription charge: #{e.message}"
     end
   end
 end

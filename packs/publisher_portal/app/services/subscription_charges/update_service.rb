@@ -14,7 +14,7 @@ module SubscriptionCharges
       stub.update_subscription_charge(Revenue::UpdateSubscriptionChargeReq.new(
         {
           amount: subscription_instance.total_amount.to_f,
-          version_number: subscription_instance.version_number,
+          versionNumber: subscription_instance.version_number,
           description: plan(subscription_instance).description,
           subscriptionChargeId: subscription_instance.pinet_subscription_charge_id,
         }
