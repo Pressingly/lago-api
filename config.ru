@@ -9,7 +9,7 @@ require_relative 'grpc/publisher_revenue/server/auth_token'
 
 Thread.new do
   s = GRPC::RpcServer.new
-  s.add_http2_port('0.0.0.0:50051', :this_port_is_insecure)
+  s.add_http2_port(ENV['LAGO_GRPC_URL'], :this_port_is_insecure)
   s.handle(AuthService)
   s.run_till_terminated
 end
