@@ -16,23 +16,26 @@ enum SubscriptionChargeStatus {
 message CreateSubscriptionChargeReq {
   string pinetIdToken = 1;
   string subscriptionInstanceId = 2;
-  double amount = 3;
-  string currencyCode = 4;
-  optional string description = 5;
+  int32 versionNumber = 3;
+  double amount = 4;
+  string currencyCode = 5;
+  optional string description = 6;
 }
 
 message UpdateSubscriptionChargeReq {
   string subscriptionChargeId = 1;
-  string pinetIdToken = 2;
-  double amount = 3;
-  optional string description = 4;
+  int32 versionNumber = 2;
+  string pinetIdToken = 3;
+  double amount = 4;
+  optional string description = 5;
 }
 
 message FinalizeSubscriptionChargeReq {
   string subscriptionChargeId = 1;
-  double amount = 2;
-  string currencyCode = 3;
-  optional string description = 4;
+  int32 versionNumber = 2;
+  double amount = 3;
+  string currencyCode = 4;
+  optional string description = 5;
 }
 
 message GetSubscriptionChargeContractStatusReq {
