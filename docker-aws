@@ -53,5 +53,5 @@ USER app
 RUN echo $LAGO_RSA_PRIVATE_KEY | base64 -d > /app/.rsa.pem
 
 # Start your application (replace with your command)
-CMD ["rails", "server", "-b", "0.0.0.0"]
+CMD ["./scripts/start.sh"]
 
