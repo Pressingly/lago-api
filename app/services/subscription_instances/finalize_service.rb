@@ -30,7 +30,7 @@ module SubscriptionInstances
     def create_subscription_instance_items
       @subscription_instance_items = []
       @subscription_instance_items += create_subscription_instance_items_for_charges_fees if charges_fees.present?
-      @subscription_instance_items << create_subscription_instance_item_for_subscription_fee if create_subscription_fee_item?
+      @subscription_instance_items << create_subscription_instance_item_for_subscription_fee if should_create_item_for_subscription_fee?
     end
 
     def create_subscription_instance_items_for_charges_fees
@@ -61,7 +61,7 @@ module SubscriptionInstances
       result.subscription_instance_item
     end
 
-    def create_subscription_fee_item?
+    def should_create_item_for_subscription_fee?
       subscription.plan.pay_in_arrear? && subscription_fee&.amount_cents&.positive?
     end
 
