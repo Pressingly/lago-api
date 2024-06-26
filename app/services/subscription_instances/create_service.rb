@@ -2,7 +2,7 @@
 
 module SubscriptionInstances
   class CreateService < BaseService
-    def initialize(subscription:, started_at:, ended_at: nil)
+    def initialize(subscription:, started_at:, ended_at:)
       @subscription = subscription
       @started_at = started_at
       @ended_at = ended_at
