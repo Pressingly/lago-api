@@ -15,7 +15,6 @@ RSpec.describe Invoices::CreatePayInAdvanceChargeService, type: :service do
   let(:subscription) { create(:subscription, customer:, plan:) }
   let(:charge) { create(:standard_charge, :pay_in_advance, billable_metric:, plan:) }
   let(:charge_filter) { nil }
-  # let!(:subscription_instance) { create(:subscription_instance, subscription:) }
   let(:stub) { instance_double(Revenue::RevenueGrpcService::Stub) }
 
   let(:invoice) { nil }

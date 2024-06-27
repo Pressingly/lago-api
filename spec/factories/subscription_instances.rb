@@ -5,6 +5,9 @@ FactoryBot.define do
     subscription
     version_number { 0 }
     status { 'active' }
-    started_at { Time.zone.now.beginning_of_month }
+
+    after(:build) do |subscription_instance|
+      subscription_instance.started_at = subscription_instance.subscription.started_at
+    end
   end
 end
