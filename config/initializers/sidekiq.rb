@@ -1,17 +1,13 @@
+# frozen_string_literal: true
 
+redis_url = ENV['REDIS_URL']
 redis_config = {
-  url: ENV['REDIS_URL'],
+  url: redis_url,
   pool_timeout: 5,
   ssl_params: {
     verify_mode: OpenSSL::SSL::VERIFY_NONE,
-  },
+  }
 }
-
-if ENV['REDIS_PASSWORD'].present? && !ENV['REDIS_PASSWORD'].empty?
-  redis_config = redis_config.merge({ password: ENV['REDIS_PASSWORD'] })
-end
-
-puts "Redis config: #{redis_config}"  # Log the configuration for debugging
 
 if ENV['LAGO_SIDEKIQ_WEB'] == 'true'
   require 'sidekiq/web'
