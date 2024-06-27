@@ -4,7 +4,7 @@ COPY Gemfile Gemfile.lock ./
 RUN bundle install
 
 FROM ruby:3.3.0
-
+RUN apt-get update -y && apt-get install ca-certificates -y
 # Retrieve the environment variables from the build environment
 ARG API_PORT
 ARG DATABASE_URL
