@@ -6,6 +6,8 @@ module SubscriptionCharges
 
     def initialize(subscription_instance:)
       @subscription_instance = subscription_instance
+
+      super
     end
 
     attr_reader :subscription_instance
