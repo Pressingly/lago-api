@@ -5,22 +5,28 @@ require 'aws-sdk-verifiedpermissions'
 module V1
   module Entitlement
     class AuthorizationController < ApplicationController
+      before_action :set_customer
       def index
         request_params_valid = Authorization::AuthorizeValidator.new(authorization_params).valid?
-
         return render(json: failure_response(code: 422, message: "Request payload error")) unless request_params_valid
+        return render(json: failure_response(code: 200, message: 'Not found customer')) if @customer.nil?
+        return render(json: failure_response(code: 200, message: 'No active subscription found')) if @customer.active_subscriptions.empty?
 
         payload = read_payload
 
         authorized_result = authorize(payload)
-
         if authorized_result[:is_authorized]
           event_result = create_get_lago_event(authorized_result[:subscription_plan], request)
 
           if event_result.success?
             return render(json: success_response(message: "Authorized", extra: authorized_result[:subscription_plan]))
           else
-            return render(json: failure_response(message: event_result.error.message, code: event_result.error&.code))
+            # TODO: Handle error code
+            error_code = case event_result.error
+            when BaseService::ServiceFailure
+              event_result.error.code
+            end
+            return render(json: failure_response(message: event_result.error.message, code: error_code))
           end
         end
 
@@ -79,6 +85,10 @@ module V1
           message: message,
           extra: extra
         }
+      end
+
+      def set_customer
+        @customer = Customer.find_by(external_id: params[:externalCustomerId])
       end
     end
   end
