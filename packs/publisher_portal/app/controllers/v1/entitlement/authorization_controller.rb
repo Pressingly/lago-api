@@ -15,9 +15,13 @@ module V1
         authorized_result = authorize(payload)
 
         if authorized_result[:is_authorized]
-          create_get_lago_event(authorized_result[:subscription_plan], request)
+          event_result = create_get_lago_event(authorized_result[:subscription_plan], request)
 
-          return render(json: success_response(message: "Authorized", extra: authorized_result[:subscription_plan]))
+          if event_result.success?
+            return render(json: success_response(message: "Authorized", extra: authorized_result[:subscription_plan]))
+          else
+            return render(json: failure_response(message: event_result.error.message, code: event_result.error&.code))
+          end
         end
 
         render(
