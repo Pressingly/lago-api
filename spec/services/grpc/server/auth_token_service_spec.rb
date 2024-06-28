@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'auth_token_services_pb'
 require Rails.root.join('app/services/grpc/server/auth_token_service')
 
-RSpec.describe AuthTokenService do
+RSpec.describe Grpc::Server::AuthTokenService do
   let(:auth_service) { described_class.new }
   let(:token) { JWT.encode(payload, ENV['SECRET_KEY_BASE'], 'HS256') }
   let(:payload) { { 'exp' => Time.now.to_i + 60 * 60 } }
