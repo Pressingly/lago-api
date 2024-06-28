@@ -18,7 +18,7 @@ module Events
         result.event = event
 
         produce_kafka_event(event)
-        Events::PostProcessJob.perform_now(event:)
+        Events::Sync::PostProcessSyncService.call(event:).raise_if_error!
 
         result
       rescue ActiveRecord::RecordInvalid => e

@@ -36,12 +36,17 @@ RSpec.describe Events::Sync::CreateSyncService, type: :service do
   let(:metadata) { {} }
 
   describe '#call' do
+    before do
+      allow(Events::Sync::PostProcessSyncService).to receive(:call)
+        .and_return(BaseService::Result.new)
+    end
+
     it 'creates an event' do
       result = nil
 
       aggregate_failures do
         expect { result = create_sync_service.call }.to change(Event, :count).by(1)
-
+        expect(Events::Sync::PostProcessSyncService).to have_received(:call)
         expect(result).to be_success
         expect(result.event).to have_attributes(
           external_customer_id:,
@@ -52,14 +57,6 @@ RSpec.describe Events::Sync::CreateSyncService, type: :service do
           properties: { 'foo' => 'bar' },
         )
       end
-    end
-
-    it 'performs post process job immediately' do
-      allow(Events::PostProcessJob).to receive(:perform_now)
-
-      create_sync_service.call
-
-      expect(Events::PostProcessJob).to have_received(:perform_now).with(event: instance_of(Event))
     end
   end
 end
