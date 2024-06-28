@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe SubscriptionInstances::CreateJob, type: :job do
@@ -15,7 +17,6 @@ RSpec.describe SubscriptionInstances::CreateJob, type: :job do
 
     it 'calls the subscription instance service' do
       allow(SubscriptionInstances::CreateService).to receive(:new)
-        .with(subscription:)
         .and_return(subscription_instance_service)
       allow(subscription_instance_service).to receive(:call)
         .and_return(result)
@@ -41,7 +42,6 @@ RSpec.describe SubscriptionInstances::CreateJob, type: :job do
 
     it 'raises an error' do
       allow(SubscriptionInstances::CreateService).to receive(:new)
-        .with(subscription:)
         .and_return(subscription_instance_service)
       allow(subscription_instance_service).to receive(:call)
         .and_return(result)

@@ -15,6 +15,7 @@ RSpec.describe Invoices::CreatePayInAdvanceChargeService, type: :service do
   let(:subscription) { create(:subscription, customer:, plan:) }
   let(:charge) { create(:standard_charge, :pay_in_advance, billable_metric:, plan:) }
   let(:charge_filter) { nil }
+  let(:stub) { instance_double(Revenue::RevenueGrpcService::Stub) }
 
   let(:invoice) { nil }
 
@@ -250,6 +251,24 @@ RSpec.describe Invoices::CreatePayInAdvanceChargeService, type: :service do
         expect(result.invoice.total_amount_cents).to eq(12)
 
         expect(result.invoice).to be_finalized
+      end
+    end
+
+    context 'when subscription_instance is update' do
+      it 'its total_value a new subscription_instance_item and update subscription_charge' do
+        create(:subscription_instance, subscription: subscription)
+        allow(Revenue::RevenueGrpcService::Stub).to receive(:new).and_return(stub)
+        allow(stub).to receive(:update_subscription_charge)
+
+        invoice_service.call
+
+        subscription_instance = SubscriptionInstance.find_by(subscription_id: subscription.id)
+        sub_instance_item = SubscriptionInstanceItem.find_by(subscription_instance_id: subscription_instance.id)
+
+        aggregate_failures do
+          expect(subscription_instance.total_amount.to_f).to eq(0.1)
+          expect(sub_instance_item.fee_amount.to_f).to eq(0.1)
+        end
       end
     end
   end

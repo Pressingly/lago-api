@@ -155,22 +155,24 @@ module Invoices
       return unless current_subscription_instance
       fee_amount = invoice.fees_amount_cents.fdiv(invoice.fees_amount.currency.subunit_to_unit)
 
-      subscription_instance_item_result = SubscriptionInstanceItems::CreateService.call(
-        subscription_instance: current_subscription_instance,
-        fee_amount:,
-        charge_type: SubscriptionInstanceItem.charge_types[:usage_charge],
-        code: event.code
-      )
-      subscription_instance_item_result.raise_if_error!
+      ActiveRecord::Base.transaction do
+        subscription_instance_item_result = SubscriptionInstanceItems::CreateService.call(
+          subscription_instance: current_subscription_instance,
+          fee_amount:,
+          charge_type: SubscriptionInstanceItem.charge_types[:usage_charge],
+          code: event.code
+        )
+        subscription_instance_item_result.raise_if_error!
 
-      increase_total_value_result = SubscriptionInstances::IncreaseTotalValueService.call(
-        subscription_instance: current_subscription_instance,
-        fee_amount:
-      )
+        increase_total_value_result = SubscriptionInstances::IncreaseTotalValueService.call(
+          subscription_instance: current_subscription_instance,
+          fee_amount:
+        )
 
-      increase_total_value_result.raise_if_error!
-      if increase_total_value_result.success?
-        # TODO: call subscription charge service
+        increase_total_value_result.raise_if_error!
+        if increase_total_value_result.success?
+          SubscriptionCharges::UpdateService.call(subscription_instance: increase_total_value_result.subscription_instance)
+        end
       end
     end
 
