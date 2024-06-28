@@ -4,14 +4,27 @@ class SubscriptionInstances::CreateJob < ApplicationJob
   queue_as 'billing'
 
   def perform(subscription)
-    ActiveRecord::Base.transaction do
-      result = SubscriptionInstances::CreateService.new(subscription: subscription).call
+    boundaries = date_service(subscription)
+    result = SubscriptionInstances::CreateService.new(
+      subscription:,
+      started_at: boundaries.from_datetime,
+      ended_at: boundaries.to_datetime
+    ).call
 
-      if result.subscription_instance.total_amount.positive?
-        SubscriptionCharges::CreateService.call(subscription_instance: result.subscription_instance)
-      end
+    result.raise_if_error!
 
-      result.raise_if_error!
+    if result.subscription_instance.total_amount.positive?
+      SubscriptionCharges::CreateService.call(subscription_instance: result.subscription_instance)
     end
+  end
+
+  private
+
+  def date_service(subscription)
+    Subscriptions::DatesService.new_instance(
+      subscription,
+      subscription.started_at,
+      current_usage: true
+    )
   end
 end

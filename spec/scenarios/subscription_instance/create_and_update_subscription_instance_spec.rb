@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe 'Subscription Instance Scenario', :scenarios, type: :request do
+describe 'Create and update subscription instance Scenario', :scenarios, type: :request do
   let(:organization) { create(:organization, webhook_url: false, default_currency: 'USD') }
   let(:customer) { create(:customer, organization:, currency: 'USD') }
   let(:billable_metric) { create(:billable_metric, organization:) }
@@ -72,7 +72,6 @@ describe 'Subscription Instance Scenario', :scenarios, type: :request do
       expect(subscription).to be_present
 
       subscription_instance = subscription.subscription_instances.first
-
       subscription_instance_item = subscription_instance.subscription_instance_items.where(charge_type: :usage_charge).first
       expect(subscription_instance_item).to be_present
 
