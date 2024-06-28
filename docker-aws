@@ -59,4 +59,7 @@ USER app
 RUN echo $LAGO_RSA_PRIVATE_KEY | base64 -d > /app/.rsa.pem
 
 # Conditional command based on the RUNTIME environment variable
-CMD if [ "$RUNTIME" = "api" ]; then ./scripts/start.sh; elif [ "$RUNTIME" = "worker" ]; then ./scripts/start.worker.sh; else echo "Unknown RUNTIME value"; fi
+CMD if [ "$RUNTIME" = "api" ]; then ./scripts/start.sh; \
+    elif [ "$RUNTIME" = "worker" ]; then ./scripts/start.worker.sh; \
+    elif [ "$RUNTIME" = "clock" ]; then ./scripts/start.clock.sh; \
+    else echo "Unknown RUNTIME value"; fi
