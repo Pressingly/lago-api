@@ -7,32 +7,22 @@ module V1
     class AuthorizationController < ApplicationController
       before_action :set_customer
       def index
+        # TODO: refactor AuthorizeValidator to include customer validation
         request_params_valid = Authorization::AuthorizeValidator.new(authorization_params).valid?
         return render(json: failure_response(code: 422, message: "Request payload error")) unless request_params_valid
-        return render(json: failure_response(code: 200, message: 'Not found customer')) if @customer.nil?
-        return render(json: failure_response(code: 200, message: 'No active subscription found')) if @customer.active_subscriptions.empty?
+
+        # Check if customer exists and has active subscriptions
+        customer_error = check_customer_errors
+        return render(json: customer_error) if customer_error
 
         payload = read_payload
 
         authorized_result = authorize(payload)
-        if authorized_result[:is_authorized]
-          event_result = create_get_lago_event(authorized_result[:subscription_plan], request)
-
-          if event_result.success?
-            return render(json: success_response(message: "Authorized", extra: authorized_result[:subscription_plan]))
-          else
-            # TODO: Handle error code
-            error_code = case event_result.error
-            when BaseService::ServiceFailure
-              event_result.error.code
-            end
-            return render(json: failure_response(message: event_result.error.message, code: error_code))
-          end
+        unless authorized_result[:is_authorized]
+          return render(json: failure_response(message: "Your subscriptions are expired"))
         end
 
-        render(
-          json: failure_response(message: "Your subscriptions are expired")
-        )
+        handle_authorized_request(authorized_result)
       end
 
       private
@@ -89,6 +79,27 @@ module V1
 
       def set_customer
         @customer = Customer.find_by(external_id: params[:externalCustomerId])
+      end
+
+      def check_customer_errors
+        if @customer.nil?
+          return failure_response(code: 200, message: 'Not found customer')
+        elsif @customer.active_subscriptions.empty?
+          return failure_response(code: 200, message: 'No active subscription found')
+        end
+
+        nil
+      end
+
+      def handle_authorized_request(authorized_result)
+        event_result = create_get_lago_event(authorized_result[:subscription_plan], request)
+        if event_result.success?
+          render(json: success_response(message: "Authorized", extra: authorized_result[:subscription_plan]))
+        else
+
+          # TODO: add error code to failure response
+          render(json: failure_response(message: event_result.error.message))
+        end
       end
     end
   end
