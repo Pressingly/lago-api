@@ -40,5 +40,6 @@ RSpec.configure do |config|
     grpc_response = instance_double("Revenue::SubscriptionChargeContractStatusRes")
     allow(SubscriptionCharges::CreateService).to receive(:call).and_return(grpc_response)
     allow(SubscriptionCharges::UpdateService).to receive(:call).and_return(grpc_response)
+    allow(SubscriptionCharges::FinalizeService).to receive(:call).and_return(grpc_response)
   end
 end

@@ -6,19 +6,21 @@ class SubscriptionInstances::CreateJob < ApplicationJob
 
   def perform(subscription)
     boundaries = date_service(subscription)
-    result = SubscriptionInstances::CreateService.new(
-      subscription:,
-      started_at: boundaries.from_datetime,
-      ended_at: boundaries.to_datetime
-    ).call
+    ActiveRecord::Base.transaction do
+      result = SubscriptionInstances::CreateService.new(
+        subscription:,
+        started_at: boundaries.from_datetime,
+        ended_at: boundaries.to_datetime
+      ).call
 
-    result.raise_if_error!
+      result.raise_if_error!
 
-    if should_subscription_charge?(result)
-      SubscriptionCharges::CreateService.call(
-        subscripton_instance: result.subscription_instance,
-        subscription_instance_item: result.subscription_instance_item
-      )
+      if should_subscription_charge?(result)
+        SubscriptionCharges::CreateService.call(
+          subscripton_instance: result.subscription_instance,
+          subscription_instance_item: result.subscription_instance_item
+        )
+      end
     end
   end
 
