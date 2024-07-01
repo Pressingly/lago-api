@@ -13,7 +13,11 @@ module SubscriptionInstances
         ).call
 
         result.raise_if_error!
-        SubscriptionCharges::FinalizeService.call(subscription_instance: subscription_instance)
+
+        SubscriptionCharges::FinalizeService.call(
+          subscription_instance: subscription_instance,
+          subscription_instance_items: result.subscription_instance_items
+        )
       end
     end
   end

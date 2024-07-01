@@ -14,7 +14,6 @@ module SubscriptionInstances
 
       ActiveRecord::Base.transaction do
         result.subscription_instance_items = create_subscription_instance_items
-        result.total_amount = result.subscription_instance_items.sum(&:fee_amount)
         result.subscription_instance = subscription_instance
         result
       end
