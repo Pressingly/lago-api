@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module SubscriptionInstances
-  class Helper
+  module Helper
     private
 
     def should_create_subscription_charge?(result)
