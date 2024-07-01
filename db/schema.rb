@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_06_05_095652) do
+ActiveRecord::Schema[7.0].define(version: 2024_07_01_034635) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -910,6 +910,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_06_05_095652) do
     t.string "code"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "contract_status", default: "pending", null: false
     t.index ["subscription_instance_id"], name: "index_subscription_instance_items_on_subscription_instance_id"
   end
 

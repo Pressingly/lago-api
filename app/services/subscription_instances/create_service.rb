@@ -19,12 +19,7 @@ module SubscriptionInstances
         if charge_without_usage && plan.amount_cents.positive? && plan.pay_in_advance?
           new_item_creation_result = create_new_subscription_instance_item(result.subscription_instance)
           if new_item_creation_result.success?
-            subscription_instance_item = new_item_creation_result.subscription_instance_item
-
-            result.subscription_instance = update_total_amount(
-              result.subscription_instance,
-              subscription_instance_item.fee_amount
-            )
+            result.subscription_instance_item = new_item_creation_result.subscription_instance_item
           end
         end
       end
@@ -72,16 +67,6 @@ module SubscriptionInstances
       return plan.charge_without_usage if plan.has_attribute?(:charge_without_usage)
 
       true
-    end
-
-    def update_total_amount(subscription_instance, fees_amount)
-      update_result = SubscriptionInstances::IncreaseTotalValueService.new(
-        subscription_instance: subscription_instance,
-        fee_amount: fees_amount
-      ).call
-
-      update_result.raise_if_error!
-      update_result.subscription_instance
     end
   end
 end

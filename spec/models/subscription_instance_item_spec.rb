@@ -40,4 +40,20 @@ RSpec.describe SubscriptionInstanceItem, type: :model do
       expect(subscription_instance_item).to be_valid
     end
   end
+
+  describe 'contract status transitions' do
+    it 'starts in pending state' do
+      expect(subscription_instance_item.contract_status.to_s).to eq('pending')
+    end
+
+    it 'transitions from pending to approved' do
+      subscription_instance_item.approve!
+      expect(subscription_instance_item.contract_status).to eq('approved')
+    end
+
+    it 'transitions from pending to rejected' do
+      subscription_instance_item.reject!
+      expect(subscription_instance_item.contract_status).to eq('rejected')
+    end
+  end
 end
