@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class SubscriptionInstances::CreateJob < ApplicationJob
+  include SubscriptionInstances::Helper
   queue_as 'billing'
 
   def perform(subscription)
@@ -13,8 +14,11 @@ class SubscriptionInstances::CreateJob < ApplicationJob
 
     result.raise_if_error!
 
-    if result.subscription_instance.total_amount.positive?
-      SubscriptionCharges::CreateService.call(subscription_instance: result.subscription_instance)
+    if should_subscription_charge?(result)
+      SubscriptionCharges::CreateService.call(
+        subscripton_instance: result.subscription_instance,
+        subscription_instance_item: result.subscription_instance_item
+      )
     end
   end
 
