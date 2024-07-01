@@ -10,8 +10,6 @@ module SubscriptionCharges
       super
     end
 
-    attr_reader :subscription_instance
-
     def call
       customer = subscription_instance.subscription.customer
       plan = subscription_instance.subscription.plan
@@ -28,5 +26,9 @@ module SubscriptionCharges
     rescue GRPC::BadStatus => e
       result.service_failure!(code: 'grpc_failed', error_message: "finalize subscription charge: #{e.message}")
     end
+
+    private
+
+    attr_reader :subscription_instance
   end
 end
