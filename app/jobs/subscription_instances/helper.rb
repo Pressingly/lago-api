@@ -4,7 +4,7 @@ module SubscriptionInstances
   class Helper
     private
 
-    def should_subscription_charge?(result)
+    def should_create_subscription_charge?(result)
       subscription_instance = result.subscription_instance
       subscription_instance_item = result.subscription_instance_item
 

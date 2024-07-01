@@ -15,7 +15,7 @@ module SubscriptionInstances
 
       result.raise_if_error!
 
-      if should_subscription_charge?(result)
+      if should_create_subscription_charge?(result)
         SubscriptionCharges::CreateService.call(
           subscripton_instance: result.subscription_instance,
           subscription_instance_item: result.subscription_instance_item
@@ -31,16 +31,6 @@ module SubscriptionInstances
         timestamp,
         current_usage: true
       )
-    end
-
-    def should_subscription_charge?(result)
-      subscription_instance = result.subscription_instance
-      subscription_instance_item = result.subscription_instance_item
-
-      subscription_instance.present? &&
-        subscription_instance_item.present? &&
-        subscription_instance_item.charge_type == SubscriptionInstanceItem.charge_types[:base_charge] &&
-        subscription_instance_item.fee_amount.positive?
     end
   end
 end

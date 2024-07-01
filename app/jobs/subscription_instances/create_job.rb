@@ -15,7 +15,7 @@ class SubscriptionInstances::CreateJob < ApplicationJob
 
       result.raise_if_error!
 
-      if should_subscription_charge?(result)
+      if should_create_subscription_charge?(result)
         SubscriptionCharges::CreateService.call(
           subscripton_instance: result.subscription_instance,
           subscription_instance_item: result.subscription_instance_item
