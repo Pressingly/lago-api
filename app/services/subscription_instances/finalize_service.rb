@@ -13,11 +13,9 @@ module SubscriptionInstances
       return result.validation_failure!(errors: { subscription_instance: ['is_not_active'] }) unless subscription_instance.active?
 
       ActiveRecord::Base.transaction do
-        create_subscription_instance_items
-        increase_total_amount if total_amount.positive?
-
-        subscription_instance.finalize!
-        result.subscription_instance = subscription_instance.reload
+        result.subscription_instance_items = create_subscription_instance_items
+        result.total_amount = result.subscription_instance_items.sum(&:fee_amount)
+        result.subscription_instance = subscription_instance
         result
       end
     end
@@ -28,9 +26,11 @@ module SubscriptionInstances
     delegate :subscription, to: :subscription_instance
 
     def create_subscription_instance_items
-      @subscription_instance_items = []
-      @subscription_instance_items += create_subscription_instance_items_for_charges_fees if charges_fees.present?
-      @subscription_instance_items << create_subscription_instance_item_for_subscription_fee if should_create_item_for_subscription_fee?
+      subscription_instance_items = []
+      subscription_instance_items += create_subscription_instance_items_for_charges_fees if charges_fees.present?
+      subscription_instance_items << create_subscription_instance_item_for_subscription_fee if should_create_item_for_subscription_fee?
+
+      subscription_instance_items
     end
 
     def create_subscription_instance_items_for_charges_fees
