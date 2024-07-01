@@ -11,12 +11,14 @@ module SubscriptionCharges
     attr_reader :subscription_instance
 
     def call
-      stub.update_subscription_charge(Revenue::UpdateSubscriptionChargeReq.new(
+      customer = subscription_instance.subscription.customer
+      stub.update_subscription_charge(Revenue::UpinetIdTokenpdateSubscriptionChargeReq.new(
         {
-          amount: subscription_instance.total_amount.to_f,
-          versionNumber: subscription_instance.version_number,
-          description: plan(subscription_instance).description,
           subscriptionChargeId: subscription_instance.pinet_subscription_charge_id,
+          versionNumber: subscription_instance.version_number,
+          amount: subscription_instance.total_amount.to_f,
+          currencyCode: customer.currency,
+          description: plan(subscription_instance).description,
         }
       ))
     rescue GRPC::BadStatus => e

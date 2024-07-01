@@ -19,10 +19,11 @@ module SubscriptionCharges
         amount: subscription_instance.total_amount.to_f,
         currencyCode: customer.currency,
         description: plan.description,
+        pinetIdToken: customer.pinet_id_token,
       }
 
-      stub.finalize_subscription_charge(Revenue::FinalizeSubscriptionChargeReq.new(payload))
       Rails.logger.info("Subcription charge finalization payload: #{payload}")
+      stub.finalize_subscription_charge(Revenue::FinalizeSubscriptionChargeReq.new(payload))
     rescue GRPC::BadStatus => e
       result.service_failure!(code: 'grpc_failed', error_message: "finalize subscription charge: #{e.message}")
     end
