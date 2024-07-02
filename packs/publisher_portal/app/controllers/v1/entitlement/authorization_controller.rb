@@ -5,24 +5,24 @@ require 'aws-sdk-verifiedpermissions'
 module V1
   module Entitlement
     class AuthorizationController < ApplicationController
+      before_action :set_customer
       def index
+        # TODO: refactor AuthorizeValidator to include customer validation
         request_params_valid = Authorization::AuthorizeValidator.new(authorization_params).valid?
-
         return render(json: failure_response(code: 422, message: "Request payload error")) unless request_params_valid
+
+        # Check if customer exists and has active subscriptions
+        customer_error = check_customer_errors
+        return render(json: customer_error) if customer_error
 
         payload = read_payload
 
         authorized_result = authorize(payload)
-
-        if authorized_result[:is_authorized]
-          create_get_lago_event(authorized_result[:subscription_plan], request)
-
-          return render(json: success_response(message: "Authorized", extra: authorized_result[:subscription_plan]))
+        unless authorized_result[:is_authorized]
+          return render(json: failure_response(message: "Your subscriptions are expired"))
         end
 
-        render(
-          json: failure_response(message: "Your subscriptions are expired")
-        )
+        handle_authorized_request(authorized_result)
       end
 
       private
@@ -75,6 +75,31 @@ module V1
           message: message,
           extra: extra
         }
+      end
+
+      def set_customer
+        @customer = Customer.find_by(external_id: params[:externalCustomerId])
+      end
+
+      def check_customer_errors
+        if @customer.nil?
+          return failure_response(code: 200, message: 'Not found customer')
+        elsif @customer.active_subscriptions.empty?
+          return failure_response(code: 200, message: 'No active subscription found')
+        end
+
+        nil
+      end
+
+      def handle_authorized_request(authorized_result)
+        event_result = create_get_lago_event(authorized_result[:subscription_plan], request)
+        if event_result.success?
+          render(json: success_response(message: "Authorized", extra: authorized_result[:subscription_plan]))
+        else
+
+          # TODO: add error code to failure response
+          render(json: failure_response(message: event_result.error.message))
+        end
       end
     end
   end

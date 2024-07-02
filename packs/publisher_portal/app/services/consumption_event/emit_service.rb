@@ -18,21 +18,14 @@ module ConsumptionEvent
 
       return if event_params[:code].blank?
 
-      result = ::Events::CreateService.call(
+      ::Events::Sync::CreateSyncService.call(
         organization: current_organization(subscription_plan["organization_id"]),
         params: event_params,
         timestamp: Time.current.to_f,
         metadata: event_metadata(request),
       )
-
-      if result.success?
-        ::V1::EventSerializer.new(
-          result.event,
-          root_name: 'event',
-        )
-      else
-        render_error_response(result)
-      end
+    rescue => e
+      result.fail_with_error!(e)
     end
 
     attr_reader :subscription_plan, :request
