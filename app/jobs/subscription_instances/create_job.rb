@@ -18,7 +18,7 @@ module SubscriptionInstances
 
         if should_create_subscription_charge?(result)
           SubscriptionCharges::CreateService.call(
-            subscripton_instance: result.subscription_instance,
+            subscription_instance: result.subscription_instance,
             subscription_instance_item: result.subscription_instance_item
           )
         end
