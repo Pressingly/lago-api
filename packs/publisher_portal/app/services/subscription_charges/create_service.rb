@@ -26,18 +26,17 @@ module SubscriptionCharges
       }
 
       subscription_charge_result = stub.create_subscription_charge(Revenue::CreateSubscriptionChargeReq.new(payload))
-
-      # TODO: check response status
-      if subscription_charge_result["status"] == "approved"
+      # TODO: update with actual response from gRPC
+      if subscription_charge_result&.status == "approved"
         subscription_instance_item.approve!
         update_subscription_instance_total_amount(subscription_instance_item.fee_amount)
-      elsif subscription_charge_result["status"] == "rejected"
+      elsif subscription_charge_result&.status == "rejected"
         subscription_instance_item.reject!
       end
 
       Rails.logger.info("Subcription charge creation payload: #{payload}")
     rescue GRPC::BadStatus => e
-      result.service_failure!(code: 'grpc_failed', error_message: "updating subscription charge: #{e.message}")
+      result.service_failure!(code: 'grpc_failed', message: "updating subscription charge: #{e.message}")
     end
 
     private

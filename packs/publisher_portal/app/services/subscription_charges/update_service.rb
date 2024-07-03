@@ -21,10 +21,10 @@ module SubscriptionCharges
         }
       ))
 
-      if update_subscription_charge_result["status"] == "approved"
+      if update_subscription_charge_result.status == "approved"
         subscription_instance_item.approve!
         update_subscription_instance_total_amount(subscription_instance_item.fee_amount)
-      elsif update_subscription_charge_result["status"] == "rejected"
+      elsif update_subscription_charge_result.status == "rejected"
         subscription_instance_item.reject!
       end
     rescue GRPC::BadStatus => e
@@ -37,7 +37,7 @@ module SubscriptionCharges
       return unless fee_amount.positive?
 
       SubscriptionInstances::IncreaseTotalValueService.call(
-        subscription_instance: current_subscription_instance,
+        subscription_instance:,
         fee_amount:
       ).raise_if_error!
     end
