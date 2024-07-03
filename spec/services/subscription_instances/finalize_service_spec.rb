@@ -3,6 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe SubscriptionInstances::FinalizeService, type: :service do
+  let(:stub) { instance_double(Revenue::RevenueGrpcService::Stub) }
+
   describe '#call' do
     context 'with valid parameters' do
       let(:subscription_instance) { create(:subscription_instance, total_amount: 0.0) }
@@ -16,11 +18,8 @@ RSpec.describe SubscriptionInstances::FinalizeService, type: :service do
           charges_fees: charges_fees
         ).call
 
-        expect(result.subscription_instance.status).to eq('finalized')
-        total_amount = charges_fees.sum(&:amount_cents).fdiv(charges_fees.last.amount.currency.subunit_to_unit)
-        total_amount += subscription_fee.amount_cents.fdiv(subscription_fee.amount.currency.subunit_to_unit)
-
-        expect(result.subscription_instance.total_amount).to eq(total_amount)
+        expect(result.success?).to eq(true)
+        expect(subscription_instance.subscription_instance_items.count).to eq(2)
       end
     end
 
@@ -36,10 +35,7 @@ RSpec.describe SubscriptionInstances::FinalizeService, type: :service do
         ).call
 
         expect(result.success?).to eq(true)
-        expect(result.subscription_instance.status).to eq('finalized')
-        total_amount = charges_fees.sum(&:amount_cents).fdiv(charges_fees.last.amount.currency.subunit_to_unit)
-
-        expect(result.subscription_instance.total_amount).to eq(total_amount)
+        expect(subscription_instance.subscription_instance_items.count).to eq(1)
       end
     end
 
@@ -54,11 +50,14 @@ RSpec.describe SubscriptionInstances::FinalizeService, type: :service do
           charges_fees: nil
         ).call
 
+        fee_amount = subscription_fee.amount_cents.fdiv(subscription_fee.amount.currency.subunit_to_unit)
         expect(result.success?).to eq(true)
-        expect(result.subscription_instance.status).to eq('finalized')
-        total_amount = subscription_fee.amount_cents.fdiv(subscription_fee.amount.currency.subunit_to_unit)
-
-        expect(result.subscription_instance.total_amount).to eq(total_amount)
+        expect(subscription_instance.subscription_instance_items.count).to eq(1)
+        expect(subscription_instance.subscription_instance_items.first).to have_attributes(
+          charge_type: 'base_charge',
+          fee_amount: BigDecimal(fee_amount.to_s),
+          contract_status: 'pending'
+        )
       end
     end
   end
