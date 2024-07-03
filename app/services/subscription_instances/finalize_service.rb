@@ -63,17 +63,5 @@ module SubscriptionInstances
     def should_create_item_for_subscription_fee?
       subscription.plan.pay_in_arrear? && subscription_fee&.amount_cents&.positive?
     end
-
-    def total_amount
-      @total_amount ||= @subscription_instance_items.sum(&:fee_amount)
-    end
-
-    def increase_total_amount
-      result = SubscriptionInstances::IncreaseTotalValueService.new(
-        subscription_instance: subscription_instance,
-        fee_amount: total_amount
-      ).call
-      result.raise_if_error!
-    end
   end
 end
