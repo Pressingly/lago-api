@@ -4,10 +4,16 @@ require 'rails_helper'
 require 'revenue.service_services_pb'
 
 RSpec.describe SubscriptionCharges::UpdateService do
-  subject(:update_service) { described_class.new(subscription_instance: sub_instance) }
+  subject(:update_service) do
+    described_class.new(
+      subscription_instance: sub_instance,
+      subscription_instance_item: sub_instance_item
+    )
+  end
 
   let(:subscription) { create(:subscription) }
-  let(:sub_instance) { create(:subscription_instance) }
+  let(:sub_instance) { create(:subscription_instance, total_amount: 1) }
+  let(:sub_instance_item) { create(:subscription_instance_item, subscription_instance: sub_instance, fee_amount: 0.1) }
   let(:organization) { create(:organization) }
   let(:plan) { create(:plan, organization: organization) }
   let(:stub) { instance_double(Revenue::RevenueGrpcService::Stub) }
@@ -15,7 +21,7 @@ RSpec.describe SubscriptionCharges::UpdateService do
   before do
     allow(SubscriptionInstance).to receive(:find_by).and_return(sub_instance)
     allow(Revenue::RevenueGrpcService::Stub).to receive(:new).and_return(stub)
-    allow(stub).to receive(:update_subscription_charge)
+    allow(stub).to receive(:update_subscription_charge).and_return(OpenStruct.new(status: 'approved'))
   end
 
   describe '#call' do

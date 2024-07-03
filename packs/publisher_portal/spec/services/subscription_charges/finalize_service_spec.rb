@@ -8,6 +8,7 @@ RSpec.describe SubscriptionCharges::FinalizeService do
 
   let(:subscription) { create(:subscription) }
   let(:sub_instance) { create(:subscription_instance) }
+  let(:sub_instance_item) { create(:subscription_instance_item, subscription_instance: sub_instance) }
   let(:customer) { create(:customer) }
   let(:organization) { create(:organization) }
   let(:plan) { create(:plan, organization: organization) }
@@ -18,7 +19,9 @@ RSpec.describe SubscriptionCharges::FinalizeService do
     allow(Customer).to receive(:find_by).and_return(customer)
     allow(Plan).to receive(:find_by).and_return(plan)
     allow(Revenue::RevenueGrpcService::Stub).to receive(:new).and_return(stub)
-    allow(stub).to receive(:finalize_subscription_charge)
+    allow(stub).to receive(:finalize_subscription_charge).and_return(OpenStruct.new(status: 'approved'))
+
+    allow(SubscriptionInstances::IncreaseTotalValueService).to receive(:new)
   end
 
   describe '#call' do
@@ -34,6 +37,10 @@ RSpec.describe SubscriptionCharges::FinalizeService do
       finalize_service.call
 
       expect(stub).to have_received(:finalize_subscription_charge).with(expected_request)
+      expect(SubscriptionInstances::IncreaseTotalValueService).to have_received(:new).with(
+        subscription_instance: sub_instance,
+        fee_amount: sub_instance_item.fee_amount
+      )
     end
 
     context 'when an error occurs' do

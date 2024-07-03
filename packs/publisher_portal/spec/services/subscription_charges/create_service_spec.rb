@@ -4,10 +4,16 @@ require 'rails_helper'
 require 'revenue.service_services_pb'
 
 RSpec.describe SubscriptionCharges::CreateService do
-  subject(:create_service) { described_class.new(subscription_instance: sub_instance) }
+  subject(:create_service) do
+    described_class.new(
+      subscription_instance: sub_instance,
+      subscription_instance_item: sub_instance_item
+    )
+  end
 
   let(:subscription) { create(:subscription) }
   let(:sub_instance) { create(:subscription_instance) }
+  let(:sub_instance_item) { create(:subscription_instance_item, subscription_instance: sub_instance) }
   let(:customer) { create(:customer) }
   let(:organization) { create(:organization) }
   let(:plan) { create(:plan, organization: organization) }
@@ -45,8 +51,9 @@ RSpec.describe SubscriptionCharges::CreateService do
           ))
       end
 
-      it 'raises a StandardError' do
-        expect { create_service.call }.to raise_error(StandardError, /Error creating subscription charge/)
+      it 'returns failed result' do
+        result = create_service.call
+        expect(result.success?).to eq(false)
       end
     end
   end
