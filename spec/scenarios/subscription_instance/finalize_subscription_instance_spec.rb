@@ -31,6 +31,18 @@ describe 'Finalize Subscription Instance Scenario', :scenarios, type: :request d
 
   let(:currency) { plan_in_advance.amount.currency }
 
+  let(:stub) { instance_double(Revenue::RevenueGrpcService::Stub) }
+
+  before do
+    allow(SubscriptionCharges::CreateService).to receive(:call).and_call_original
+    allow(SubscriptionCharges::FinalizeService).to receive(:call).and_call_original
+    allow(Revenue::RevenueGrpcService::Stub).to receive(:new).and_return(stub)
+
+    # TODO: update return value to match the actual return value
+    allow(stub).to receive(:create_subscription_charge).and_return(OpenStruct.new(status: 'approved'))
+    allow(stub).to receive(:finalize_subscription_charge).and_return(OpenStruct.new(success: true))
+  end
+
   context 'when plan has only base amount' do
     context 'when plan is pay in advance' do
       it 'finalizes subscription instance correctly' do
@@ -44,9 +56,10 @@ describe 'Finalize Subscription Instance Scenario', :scenarios, type: :request d
           )
 
           subscription = Subscription.find_by(external_id: "#{customer.external_id}_1")
+          subscription_instance = subscription.subscription_instances.first
+
           expect(subscription.subscription_instances.count).to eq(1)
 
-          subscription_instance = subscription.subscription_instances.first
           expect(subscription_instance.status.to_sym).to eq(:active)
           expect(subscription_instance.total_amount).to eq(plan_in_advance.amount_cents.fdiv(currency.subunit_to_unit))
         end
@@ -56,18 +69,19 @@ describe 'Finalize Subscription Instance Scenario', :scenarios, type: :request d
           perform_all_enqueued_jobs
 
           subscription = Subscription.find_by(external_id: "#{customer.external_id}_1")
+          finalized_subscription_instance = subscription.subscription_instances.where(status: :finalized).first
+          active_subscription_instance = subscription.subscription_instances.where(status: :active).first
+          expected_started_at = (subscription_at + 1.week).beginning_of_day
+          expected_end_at = (expected_started_at + 6.days).end_of_day
+
           expect(subscription.subscription_instances.count).to eq(2) # 1 for the initial subscription instance and 1 for the new one
 
-          finalized_subscription_instance = subscription.subscription_instances.where(status: :finalized).first
           expect(finalized_subscription_instance).to be_present
           expect(finalized_subscription_instance.total_amount).to eq(plan_in_advance.amount_cents.fdiv(currency.subunit_to_unit))
 
-          active_subscription_instance = subscription.subscription_instances.where(status: :active).first
           expect(active_subscription_instance).to be_present
           expect(active_subscription_instance.total_amount).to eq(plan_in_advance.amount_cents.fdiv(currency.subunit_to_unit))
 
-          expected_started_at = (subscription_at + 1.week).beginning_of_day
-          expected_end_at = (expected_started_at + 6.days).end_of_day
           expect(active_subscription_instance.started_at.to_i).to eq(expected_started_at.to_i)
           expect(active_subscription_instance.ended_at.to_i).to eq(expected_end_at.to_i)
         end
@@ -86,9 +100,10 @@ describe 'Finalize Subscription Instance Scenario', :scenarios, type: :request d
           )
 
           subscription = Subscription.find_by(external_id: "#{customer.external_id}_1")
+          subscription_instance = subscription.subscription_instances.first
+
           expect(subscription.subscription_instances.count).to eq(1)
 
-          subscription_instance = subscription.subscription_instances.first
           expect(subscription_instance.status.to_sym).to eq(:active)
           expect(subscription_instance.total_amount).to eq(0)
         end
@@ -98,20 +113,20 @@ describe 'Finalize Subscription Instance Scenario', :scenarios, type: :request d
           perform_all_enqueued_jobs
 
           subscription = Subscription.find_by(external_id: "#{customer.external_id}_1")
+          finalized_subscription_instance = subscription.subscription_instances.where(status: :finalized).first
+          active_subscription_instance = subscription.subscription_instances.where(status: :active).first
+          expected_started_at = (subscription_at + 1.week).beginning_of_day
+          expected_end_at = (expected_started_at + 6.days).end_of_day
+
           expect(subscription.subscription_instances.count).to eq(2) # 1 for the initial subscription instance and 1 for the new one
 
-          finalized_subscription_instance = subscription.subscription_instances.where(status: :finalized).first
-          expect(finalized_subscription_instance).to be_present
           # The total amount will be added to subscription instance at when the subscription instance is finalized
           expect(finalized_subscription_instance.total_amount).to eq(plan_in_arreas.amount_cents.fdiv(currency.subunit_to_unit))
+          expect(finalized_subscription_instance.subscription_instance_items.pluck(:contract_status)).to eq(['approved'])
 
-          active_subscription_instance = subscription.subscription_instances.where(status: :active).first
-          expect(active_subscription_instance).to be_present
           # The total amount of next subscription instance will be 0 because its plan is pay in arrears
           expect(active_subscription_instance.total_amount).to eq(0)
 
-          expected_started_at = (subscription_at + 1.week).beginning_of_day
-          expected_end_at = (expected_started_at + 6.days).end_of_day
           expect(active_subscription_instance.started_at.to_i).to eq(expected_started_at.to_i)
           expect(active_subscription_instance.ended_at.to_i).to eq(expected_end_at.to_i)
         end
@@ -145,9 +160,10 @@ describe 'Finalize Subscription Instance Scenario', :scenarios, type: :request d
         )
 
         subscription = Subscription.find_by(external_id: "#{customer.external_id}_1")
+        subscription_instance = subscription.subscription_instances.first
+
         expect(subscription.subscription_instances.count).to eq(1)
 
-        subscription_instance = subscription.subscription_instances.first
         expect(subscription_instance.status.to_sym).to eq(:active)
         expect(subscription_instance.total_amount).to eq(plan_in_advance.amount_cents.fdiv(currency.subunit_to_unit))
       end
@@ -170,10 +186,10 @@ describe 'Finalize Subscription Instance Scenario', :scenarios, type: :request d
 
         subscription.reload
         finalized_subscription_instance = subscription.subscription_instances.where(status: :finalized).first
+        expected_amount = plan_in_advance.amount_cents.fdiv(currency.subunit_to_unit) + BigDecimal(charge.properties['amount']) * number_of_events
         expect(finalized_subscription_instance).to be_present
 
         # The total amount will include the base charge and the usage charge during the billing period
-        expected_amount = plan_in_advance.amount_cents.fdiv(currency.subunit_to_unit) + BigDecimal(charge.properties['amount']) * number_of_events
         expect(finalized_subscription_instance.total_amount).to eq(expected_amount)
       end
     end
