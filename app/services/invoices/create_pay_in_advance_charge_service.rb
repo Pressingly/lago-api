@@ -164,13 +164,10 @@ module Invoices
         )
         subscription_instance_item_result.raise_if_error!
 
-        increase_total_value_result.raise_if_error!
-        if increase_total_value_result.success?
-          SubscriptionCharges::UpdateService.call(
-            subscription_instance: current_subscription_instance,
-            subscription_instance_item: subscription_instance_item_result.subscription_instance_item
-          )
-        end
+        SubscriptionCharges::UpdateService.call(
+          subscription_instance: current_subscription_instance,
+          subscription_instance_item: subscription_instance_item_result.subscription_instance_item
+        )
       end
     end
 
