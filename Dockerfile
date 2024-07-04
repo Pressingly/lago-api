@@ -17,6 +17,8 @@ FROM ruby:3.3.0-slim
 
 WORKDIR /app
 
+EXPOSE 50051
+
 COPY . /app
 
 ARG SEGMENT_WRITE_KEY
