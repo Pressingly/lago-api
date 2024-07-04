@@ -82,6 +82,12 @@ Rails.application.routes.draw do
         get :public_key, on: :collection
         get :json_public_key, on: :collection
       end
+
+      if Rails.env.staging? || Rails.env.development?
+        resources :subscription_instances, param: :id, only: %i[show] do
+          post "finalize/:id", to: 'subscription_instances#finalize', on: :collection
+        end
+      end
     end
   end
 
