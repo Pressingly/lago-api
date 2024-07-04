@@ -23,9 +23,13 @@ module SubscriptionCharges
         pinetIdToken: customer.pinet_id_token,
         subscriptionInstanceId: subscription_instance.id,
       }
-
-      stub.create_subscription_charge(Revenue::CreateSubscriptionChargeReq.new(payload))
       Rails.logger.info("Subcription charge creation payload: #{payload}")
+
+      subscription_charge_result = stub.create_subscription_charge(Revenue::CreateSubscriptionChargeReq.new(payload))
+      Rails.logger.info("Subcription charge creation subscription_charge_result: #{payload}")
+
+      subscription_instance.pinet_subscription_charge_id = subscription_charge_result.subscriptionChargeId
+      subscription_instance.save!
     rescue GRPC::BadStatus => e
       result.service_failure!(code: 'grpc_failed', error_message: "updating subscription charge: #{e.message}")
     end
