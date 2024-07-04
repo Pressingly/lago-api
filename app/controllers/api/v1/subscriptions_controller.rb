@@ -84,7 +84,13 @@ module Api
         )
         return not_found_error(resource: 'subscription') unless subscription
 
-        render_subscription(subscription)
+        render(
+          json: ::V1::SubscriptionSerializer.new(
+            subscription,
+            root_name: 'subscription',
+            includes: %i[plan subscription_instances]
+          ),
+        )
       end
 
       def index
