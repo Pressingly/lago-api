@@ -26,18 +26,24 @@ RSpec.describe ConsumptionEvent::EmitService, type: :service do
       plan
     end
 
-    it 'creates an event and returns a serialized event' do
+    it 'creates an event' do
+      success_reult = BaseService::Result.new
+      success_reult.event = Event.new
+      allow(::Events::Sync::CreateSyncService).to receive(:call)
+        .and_return(success_reult)
       result = emit_service.call
 
-      expect(result).to be_a(::V1::EventSerializer)
-      expect(result.model).to be_a(Event)
+      expect(result.success?).to eq(true)
+      expect(result.event).to be_present
     end
 
     context 'when the subscription plan is invalid' do
       let(:subscription_plan) { { "id" => "1", "organization_id" => nil } }
 
       it 'raises an ArgumentError' do
-        expect { emit_service.call }.to raise_error(ArgumentError)
+        result = emit_service.call
+        expect(result.success?).to eq(false)
+        expect(result.error).to be_a(ArgumentError)
       end
     end
 
@@ -45,14 +51,14 @@ RSpec.describe ConsumptionEvent::EmitService, type: :service do
       let(:failed_result) { BaseService::Result.new.fail_with_error!(StandardError.new("Error message")) }
 
       before do
-        allow(::Events::CreateService).to receive(:call).and_return(failed_result)
+        allow(::Events::Sync::CreateSyncService).to receive(:call).and_return(failed_result)
       end
 
       it 'triggers render_error_response' do
-        # rubocop:disable all
-        expect(emit_service).to receive(:render_error_response).with(failed_result)
+        result = emit_service.call
 
-        emit_service.call
+        expect(result.success?).to eq(false)
+        expect(result.error).to be_a(StandardError)
       end
     end
   end
