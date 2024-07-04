@@ -25,7 +25,7 @@ module SubscriptionCharges
       Rails.logger.info("Subcription charge finalization payload: #{payload}")
       stub.finalize_subscription_charge(Revenue::FinalizeSubscriptionChargeReq.new(payload))
     rescue GRPC::BadStatus => e
-      result.service_failure!(code: 'grpc_failed', error_message: "finalize subscription charge: #{e.message}")
+      result.service_failure!(code: 'grpc_failed', message: "finalize subscription charge: #{e.message}")
     end
 
     private
