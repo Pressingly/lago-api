@@ -4,7 +4,7 @@ module Api
   module V1
     class SubscriptionInstancesController < Api::BaseController
       def finalize
-        subscription_instance = SubscriptionInstance.find_by_id(params[:id])
+        subscription_instance = SubscriptionInstance.find_by(id: params[:id])
 
         not_found_error(resource: 'subscription_instance') unless subscription_instance
         unless subscription_instance.active?
@@ -24,7 +24,7 @@ module Api
       end
 
       def show
-        subscription_instance = SubscriptionInstance.find_by_id(params[:id])
+        subscription_instance = SubscriptionInstance.find_by(id: params[:id])
 
         not_found_error(resource: 'subscription_instance') unless subscription_instance
         render_subscription_instance(subscription_instance)
