@@ -17,7 +17,8 @@ FROM ruby:3.3.0-slim
 
 WORKDIR /app
 
-EXPOSE 50051
+EXPOSE 5002
+EXPOSE 3000
 
 COPY . /app
 
