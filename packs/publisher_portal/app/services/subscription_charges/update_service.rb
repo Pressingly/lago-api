@@ -12,7 +12,7 @@ module SubscriptionCharges
 
     def call
       customer = subscription_instance.subscription.customer
-      stub.update_subscription_charge(Revenue::UpinetIdTokenpdateSubscriptionChargeReq.new(
+      stub.update_subscription_charge(Revenue::UpdateSubscriptionChargeReq.new(
         {
           subscriptionChargeId: subscription_instance.pinet_subscription_charge_id,
           versionNumber: subscription_instance.version_number,
