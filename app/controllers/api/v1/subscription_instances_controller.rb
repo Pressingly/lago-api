@@ -6,7 +6,7 @@ module Api
       def finalize
         subscription_instance = SubscriptionInstance.find_by(id: params[:id])
 
-        not_found_error(resource: 'subscription_instance') unless subscription_instance
+        return not_found_error(resource: 'subscription_instance') unless subscription_instance
         unless subscription_instance.active?
           return render_error_response(
             error: 'subscription_instance_not_active',
@@ -16,7 +16,7 @@ module Api
 
         result = SubscriptionCharges::FinalizeService.call(subscription_instance: subscription_instance)
 
-        if result.success?
+        if result&.success?
           render_subscription_instance(subscription_instance.reload)
         else
           render_error_response(result)
