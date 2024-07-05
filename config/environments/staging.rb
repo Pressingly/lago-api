@@ -44,6 +44,7 @@ Rails.application.configure do
   config.active_record.dump_schema_after_migration = false
 
   config.hosts << /[a-z0-9-]+\.staging\.getlago\.com/
+  config.hosts << ENV['LAGO_API_HOST'] if ENV['LAGO_API_HOST'].present?
 
   config.license_url = 'http://license-staging-web.default.svc.cluster.local'
 
