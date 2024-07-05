@@ -17,6 +17,7 @@ module Api
         result = SubscriptionCharges::FinalizeService.call(subscription_instance: subscription_instance)
 
         if result&.success?
+          subscription_instance.finalize!
           render_subscription_instance(subscription_instance.reload)
         else
           render_error_response(result)
