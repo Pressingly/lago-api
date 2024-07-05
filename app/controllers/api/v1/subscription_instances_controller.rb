@@ -26,7 +26,7 @@ module Api
       def show
         subscription_instance = SubscriptionInstance.find_by(id: params[:id])
 
-        not_found_error(resource: 'subscription_instance') unless subscription_instance
+        return not_found_error(resource: 'subscription_instance') unless subscription_instance
         render_subscription_instance(subscription_instance)
       end
 
