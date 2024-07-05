@@ -31,7 +31,7 @@ module SubscriptionCharges
       subscription_instance.pinet_subscription_charge_id = subscription_charge_result.subscriptionChargeId
       subscription_instance.save!
     rescue GRPC::BadStatus => e
-      result.service_failure!(code: 'grpc_failed', error_message: "updating subscription charge: #{e.message}")
+      result.service_failure!(code: 'grpc_failed', message: "updating subscription charge: #{e.message}")
     end
   end
 end
