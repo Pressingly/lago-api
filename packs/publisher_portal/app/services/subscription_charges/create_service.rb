@@ -26,7 +26,7 @@ module SubscriptionCharges
       Rails.logger.info("Subcription charge creation payload: #{payload}")
 
       subscription_charge_result = stub.create_subscription_charge(Revenue::CreateSubscriptionChargeReq.new(payload))
-      Rails.logger.info("Subcription charge creation subscription_charge_result: #{payload}")
+      Rails.logger.info("Subcription charge creation subscription_charge_result: #{subscription_charge_result}")
 
       subscription_instance.pinet_subscription_charge_id = subscription_charge_result.subscriptionChargeId
       subscription_instance.save!
