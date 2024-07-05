@@ -2,7 +2,6 @@
 
 # This file is used by Rack-based servers to start the application.
 
-require 'grpc'
 require_relative 'config/environment'
 require_relative 'packs/publisher_portal/lib/auth_token_services_pb'
 require_relative 'app/services/grpc/server/auth_token_service'
