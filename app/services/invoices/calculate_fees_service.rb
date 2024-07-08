@@ -42,15 +42,7 @@ module Invoices
             create_minimum_commitment_true_up_fee(invoice_subscription)
           end
 
-          current_subscription_instance = subscription.subscription_instances
-            .where('started_at < ? AND ended_at < ?', invoice_subscription.timestamp, invoice_subscription.timestamp)
-            .where(status: :active)
-            .last
-
-          if recurring && subscription.active? && current_subscription_instance
-            finalize_current_subscription_instance(current_subscription_instance, subscription_fee, charges_fees)
-            transition_to_new_period(subscription, invoice_subscription.timestamp)
-          end
+          handle_subscription_instance_finalization(invoice_subscription, subscription_fee, charges_fees)
         end
 
         invoice.fees_amount_cents = invoice.fees.sum(:amount_cents)
@@ -283,6 +275,48 @@ module Invoices
 
     def not_in_finalizing_process?
       (invoice.draft? || invoice.voided?) && context != :finalize
+    end
+
+    def handle_subscription_instance_finalization(invoice_subscription, subscription_fee, charges_fees)
+      subscription = invoice_subscription.subscription
+      # TODO: handle case when delete customer or plan
+      return if subscription.customer.discarded? || subscription.plan.pending_deletion
+
+      current_subscription_instance = get_current_subscription_instance(invoice_subscription)
+
+      if current_subscription_instance&.active? && should_finalize_subscription_instance?(invoice_subscription)
+        finalize_current_subscription_instance(current_subscription_instance, subscription_fee, charges_fees)
+      end
+
+      if current_subscription_instance && should_transition_to_new_period?(invoice_subscription)
+        transition_to_new_period(subscription, invoice_subscription.timestamp)
+      end
+    end
+
+    def get_current_subscription_instance(invoice_subscription)
+      subscription = invoice_subscription.subscription
+      case invoice_subscription.invoicing_reason&.to_sym
+      when :subscription_periodic
+        subscription.subscription_instances
+          .where('started_at <= ? AND ended_at <= ?', invoice_subscription.timestamp, invoice_subscription.timestamp)
+          .where(status: :active)
+          .last
+      when :subscription_terminating
+        subscription.subscription_instances
+          .where('started_at <= ? AND ended_at >= ?', invoice_subscription.timestamp, invoice_subscription.timestamp)
+          .where(status: :active)
+          .last
+      end
+    end
+
+    def should_finalize_subscription_instance?(invoice_subscription)
+      %i[subscription_periodic subscription_terminating]
+        .include?(invoice_subscription.invoicing_reason&.to_sym)
+    end
+
+    def should_transition_to_new_period?(invoice_subscription)
+      invoice_subscription.invoicing_reason&.to_sym == :subscription_periodic &&
+        invoice_subscription.subscription.active?
     end
 
     def finalize_current_subscription_instance(subscription_instance, subscription_fee, charges_fees)
