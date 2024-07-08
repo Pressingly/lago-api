@@ -2,6 +2,7 @@
 
 require 'grpc'
 require 'jwt'
+require 'rails'
 
 require_relative '../../../../packs/publisher_portal/lib/auth_token_services_pb'
 
