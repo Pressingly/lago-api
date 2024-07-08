@@ -1,7 +1,10 @@
 # frozen_string_literal: true
 
 require 'grpc'
-require 'auth_token_services_pb'
+require 'jwt'
+require 'rails'
+
+require_relative '../../../../packs/publisher_portal/lib/auth_token_services_pb'
 
 module Grpc
   module Server

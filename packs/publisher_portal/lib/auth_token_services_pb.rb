@@ -2,7 +2,7 @@
 # Source: auth_token.proto for package 'auth'
 
 require 'grpc'
-require 'auth_token_pb'
+require_relative './auth_token_pb'
 
 module Auth
   module Token
