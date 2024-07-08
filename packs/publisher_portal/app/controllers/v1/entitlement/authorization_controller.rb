@@ -99,7 +99,7 @@ module V1
         else
 
           # TODO: add error code to failure response
-          render(json: failure_response(message: event_result.error.message))
+          render(json: failure_response(message: 'Failed to create consumption event'))
         end
       end
     end
