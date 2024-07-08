@@ -49,7 +49,7 @@ module V1
       def authorize(payload)
         avp_client = Aws::VerifiedPermissions::Client.new({
           region: ENV.fetch('AWS_REGION', nil),
-          credentials: Aws::Credentials.new(ENV.fetch('AWS_ACCESS_KEY_ID', nil), ENV.fetch('AWS_SECRET_ACCESS_KEY', nil))
+          credentials: Aws::Credentials.new(ENV.fetch('AWS_ACCESS_KEY_ID', nil), ENV.fetch('AWS_SECRET_ACCESS_KEY', nil), ENV.fetch('AWS_SESSION_TOKEN', nil))
         })
         auth_payload = EntitlementAdapter::ConverterService.call(payload: payload, policy_store_id: policy_store_id)
         Authorization::AuthorizeService.call(payload: auth_payload, client: avp_client)
