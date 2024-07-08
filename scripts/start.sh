@@ -14,4 +14,7 @@ then
 fi
 
 bundle exec rails signup:seed_organization
-bundle exec rails s -b ::
+bundle exec rails s -b :: &
+
+# Run the gRPC server
+ruby grpc_server.rb
