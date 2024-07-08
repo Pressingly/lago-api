@@ -15,7 +15,7 @@ module ConsumptionEvent
       validate_subscription_plan(subscription_plan)
 
       event_params = create_params(subscription_plan["id"], JSON.parse(request.body.read))
-
+      Rails.logger.info("Consumption event params: #{event_params}")
       return if event_params[:code].blank?
 
       ::Events::Sync::CreateSyncService.call(
