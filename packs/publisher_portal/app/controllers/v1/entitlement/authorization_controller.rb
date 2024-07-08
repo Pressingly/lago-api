@@ -93,7 +93,7 @@ module V1
 
       def handle_authorized_request(authorized_result)
         event_result = create_get_lago_event(authorized_result[:subscription_plan], request)
-        if event_result.success?
+        if event_result&.success?
           render(json: success_response(message: "Authorized", extra: authorized_result[:subscription_plan]))
         else
 
