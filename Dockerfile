@@ -5,7 +5,7 @@ WORKDIR /app
 COPY ./Gemfile /app/Gemfile
 COPY ./Gemfile.lock /app/Gemfile.lock
 
-RUN apt update -qq && apt install nodejs build-essential git pkg-config libpq-dev curl -y
+RUN apt update -qq && apt install nodejs build-essential git pkg-config libpq-dev curl grpcurl -y
 
 ENV BUNDLER_VERSION='2.5.5'
 RUN gem install bundler --no-document -v '2.5.5'
