@@ -2,7 +2,6 @@
 
 require 'grpc'
 require 'jwt'
-require 'rails'
 
 require_relative '../../../../packs/publisher_portal/lib/auth_token_services_pb'
 
@@ -24,7 +23,7 @@ module Grpc
         @payload = decoded_token.reduce({}, :merge)
         Time.now.to_i <= @payload['exp']
       rescue JWT::DecodeError => e
-        Rails.logger.error("Error decoding token: #{e}")
+        puts "Error decoding token: #{e}"
         raise e if e.is_a?(JWT::ExpiredSignature) || Rails.env.development?
       end
 
