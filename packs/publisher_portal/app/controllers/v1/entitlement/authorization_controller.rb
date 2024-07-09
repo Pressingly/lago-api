@@ -48,8 +48,8 @@ module V1
 
       def authorize(payload)
         avp_client = Aws::VerifiedPermissions::Client.new({
-          region: 'ap-southeast-1',
-          credentials: Aws::Credentials.new(ENV.fetch('AWS_ACCESS_KEY_ID', nil), ENV.fetch('AWS_SECRET_ACCESS_KEY', nil))
+          region: ENV.fetch('AWS_REGION', nil),
+          credentials: Aws::Credentials.new(ENV.fetch('AWS_ACCESS_KEY_ID', nil), ENV.fetch('AWS_SECRET_ACCESS_KEY', nil), ENV.fetch('AWS_SESSION_TOKEN', nil))
         })
         auth_payload = EntitlementAdapter::ConverterService.call(payload: payload, policy_store_id: policy_store_id)
         Authorization::AuthorizeService.call(payload: auth_payload, client: avp_client)
@@ -93,12 +93,13 @@ module V1
 
       def handle_authorized_request(authorized_result)
         event_result = create_get_lago_event(authorized_result[:subscription_plan], request)
-        if event_result.success?
+        Rails.logger.info("Event result: #{event_result.inspect}")
+        if event_result&.success?
           render(json: success_response(message: "Authorized", extra: authorized_result[:subscription_plan]))
         else
 
           # TODO: add error code to failure response
-          render(json: failure_response(message: event_result.error.message))
+          render(json: failure_response(message: 'Failed to create consumption event'))
         end
       end
     end

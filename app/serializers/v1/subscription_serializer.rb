@@ -26,6 +26,7 @@ module V1
 
       payload = payload.merge(customer:) if include?(:customer)
       payload = payload.merge(plan:) if include?(:plan)
+      payload = payload.merge(subscription_instances) if include?(:subscription_instances)
 
       payload
     end
@@ -44,6 +45,15 @@ module V1
       ::V1::PlanSerializer.new(
         model.plan,
         includes: %i[charges taxes minimum_commitment],
+      ).serialize
+    end
+
+    def subscription_instances
+      ::CollectionSerializer.new(
+        model.subscription_instances,
+        ::V1::SubscriptionInstanceSerializer,
+        collection_name: 'subscription_instances',
+        includes: %i[subscription_instance_items],
       ).serialize
     end
   end

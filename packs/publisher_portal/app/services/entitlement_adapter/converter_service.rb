@@ -119,7 +119,7 @@ module EntitlementAdapter
 
       customer_id = Customer.find_by(external_id: @external_customer_id)&.id
 
-      Plan.joins(:subscriptions).where(subscriptions: { customer_id: customer_id }).uniq
+      Plan.joins(:subscriptions).where(subscriptions: { customer_id: customer_id, status: :active }).uniq
     end
 
     def map_plans_to_principals

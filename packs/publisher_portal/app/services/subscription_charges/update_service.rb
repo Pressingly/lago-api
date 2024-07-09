@@ -12,15 +12,18 @@ module SubscriptionCharges
 
     def call
       customer = subscription_instance.subscription.customer
-      stub.update_subscription_charge(Revenue::UpdateSubscriptionChargeReq.new(
-        {
-          subscriptionChargeId: subscription_instance.pinet_subscription_charge_id,
-          versionNumber: subscription_instance.version_number,
-          amount: subscription_instance.total_amount.to_f,
-          currencyCode: customer.currency,
-          description: plan(subscription_instance).description,
-        }
-      ))
+      payload = {
+        subscriptionChargeId: subscription_instance.pinet_subscription_charge_id,
+        versionNumber: subscription_instance.version_number,
+        amount: subscription_instance.total_amount.to_f,
+        pinetIdToken: customer.pinet_id_token,
+        currencyCode: customer.currency,
+        description: plan(subscription_instance).description,
+      }
+
+      Rails.logger.info("Subcription charge update payload: #{payload}")
+
+      stub.update_subscription_charge(Revenue::UpdateSubscriptionChargeReq.new(payload))
     rescue GRPC::BadStatus => e
       raise StandardError, "Error updating subscription charge: #{e.message}"
     end
