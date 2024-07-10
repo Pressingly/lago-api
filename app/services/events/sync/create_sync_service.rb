@@ -25,6 +25,9 @@ module Events
         result.record_validation_failure!(record: e.record)
       rescue ActiveRecord::RecordNotUnique
         result.single_validation_failure!(field: :transaction_id, error_code: 'value_already_exist')
+      rescue => e
+        Rails.logger.error("Error creating sync event: #{e.message}")
+        result.fail_with_error!(e)
       end
     end
   end

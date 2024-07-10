@@ -27,7 +27,8 @@ message UpdateSubscriptionChargeReq {
   int32 versionNumber = 2;
   string pinetIdToken = 3;
   double amount = 4;
-  optional string description = 5;
+  string currencyCode = 5;
+  optional string description = 6;
 }
 
 message FinalizeSubscriptionChargeReq {
@@ -36,6 +37,7 @@ message FinalizeSubscriptionChargeReq {
   double amount = 3;
   string currencyCode = 4;
   optional string description = 5;
+  string pinetIdToken = 6;
 }
 
 message GetSubscriptionChargeContractStatusReq {

@@ -12,14 +12,19 @@ module SubscriptionCharges
     attr_reader :subscription_instance, :subscription_instance_item
 
     def call
-      update_subscription_charge_result = stub.update_subscription_charge(Revenue::UpdateSubscriptionChargeReq.new(
-        {
-          amount: subscription_instance.total_amount.to_f,
-          versionNumber: subscription_instance.version_number,
-          description: plan(subscription_instance).description,
-          subscriptionChargeId: subscription_instance.pinet_subscription_charge_id,
-        }
-      ))
+      customer = subscription_instance.subscription.customer
+      payload = {
+        subscriptionChargeId: subscription_instance.pinet_subscription_charge_id,
+        versionNumber: subscription_instance.version_number,
+        amount: subscription_instance.total_amount.to_f,
+        pinetIdToken: customer.pinet_id_token,
+        currencyCode: customer.currency,
+        description: plan(subscription_instance).description,
+      }
+
+      Rails.logger.info("Subcription charge update payload: #{payload}")
+
+      update_subscription_charge_result = stub.update_subscription_charge(Revenue::UpdateSubscriptionChargeReq.new(payload))
 
       if update_subscription_charge_result.status == "approved"
         subscription_instance_item.approve!

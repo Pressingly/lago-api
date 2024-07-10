@@ -35,6 +35,12 @@ module SubscriptionCharges
       end
 
       Rails.logger.info("Subcription charge creation payload: #{payload}")
+
+      subscription_charge_result = stub.create_subscription_charge(Revenue::CreateSubscriptionChargeReq.new(payload))
+      Rails.logger.info("Create subscription charge result: #{subscription_charge_result}")
+
+      subscription_instance.pinet_subscription_charge_id = subscription_charge_result.subscriptionChargeId
+      subscription_instance.save!
     rescue GRPC::BadStatus => e
       result.service_failure!(code: 'grpc_failed', message: "updating subscription charge: #{e.message}")
     end
