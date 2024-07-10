@@ -320,11 +320,13 @@ module Invoices
     end
 
     def finalize_current_subscription_instance(subscription_instance, subscription_fee, charges_fees)
-      SubscriptionInstances::FinalizeJob.perform_later(
-        subscription_instance:,
-        subscription_fee:,
-        charges_fees:
-      )
+      after_commit do
+        SubscriptionInstances::FinalizeJob.perform_later(
+          subscription_instance:,
+          subscription_fee:,
+          charges_fees:
+        )
+      end
     end
 
     def transition_to_new_period(subscription, timestamp)
