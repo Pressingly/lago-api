@@ -35,7 +35,16 @@ describe 'Finalize Subscription Instance Scenario', :scenarios, type: :request d
   let(:pdf_file) { StringIO.new(File.read(Rails.root.join('spec/fixtures/blank.pdf'))) }
   let(:pdf_result) { OpenStruct.new(io: pdf_file) }
 
+  let(:stub) { instance_double(Revenue::RevenueGrpcService::Stub) }
+
   before do
+    allow(SubscriptionCharges::CreateService).to receive(:call).and_call_original
+    allow(SubscriptionCharges::FinalizeService).to receive(:call).and_call_original
+    allow(Revenue::RevenueGrpcService::Stub).to receive(:new).and_return(stub)
+
+    # TODO: update return value to match the actual return value
+    allow(stub).to receive(:create_subscription_charge).and_return(OpenStruct.new(status: 'approved'))
+    allow(stub).to receive(:finalize_subscription_charge).and_return(OpenStruct.new(success: true))
     allow(Utils::PdfGenerator).to receive(:new)
       .and_return(pdf_generator)
     allow(pdf_generator).to receive(:call)
