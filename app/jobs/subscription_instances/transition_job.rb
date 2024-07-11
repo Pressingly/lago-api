@@ -13,6 +13,10 @@ module SubscriptionInstances
       ).call
 
       result.raise_if_error!
+
+      if result.subscription_instance.total_amount.positive?
+        SubscriptionCharges::CreateService.call(subscription_instance: result.subscription_instance)
+      end
     end
 
     private
