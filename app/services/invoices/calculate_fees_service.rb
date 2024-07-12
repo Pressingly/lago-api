@@ -42,7 +42,7 @@ module Invoices
             create_minimum_commitment_true_up_fee(invoice_subscription)
           end
 
-          handle_subscription_instance_finalization(invoice_subscription)
+          handle_subscription_instance_finalization(invoice_subscription) if subscription.plan.pay_in_advance?
         end
 
         invoice.fees_amount_cents = invoice.fees.sum(:amount_cents)
