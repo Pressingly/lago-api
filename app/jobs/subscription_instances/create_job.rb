@@ -2,7 +2,6 @@
 
 module SubscriptionInstances
   class CreateJob < ApplicationJob
-    include SubscriptionInstances::Helper
     queue_as 'billing'
 
     def perform(subscription)
