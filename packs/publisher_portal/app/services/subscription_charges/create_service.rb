@@ -19,10 +19,10 @@ module SubscriptionCharges
       payload = {
         amount: subscription_instance_item.fee_amount.to_f,
         currencyCode: customer.currency,
-        versionNumber: subscription_instance.version_number,
         description: plan.description,
         pinetIdToken: customer.pinet_id_token,
         subscriptionInstanceId: subscription_instance.id,
+        subscriptionInstanceItemId: subscription_instance_item.id,
       }
 
       subscription_charge_result = stub.create_subscription_charge(Revenue::CreateSubscriptionChargeReq.new(payload))
