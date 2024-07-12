@@ -29,6 +29,8 @@ module SubscriptionCharges
         subscription_instance.finalize!
       end
 
+      Rails.logger.info("Subcription charge finalization result: #{finalize_result}")
+
       result
     rescue GRPC::BadStatus => e
       result.service_failure!(code: 'grpc_failed', message: "finalize subscription charge: #{e.message}")
