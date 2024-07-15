@@ -16,7 +16,7 @@ module SubscriptionCharges
       payload = {
         subscriptionChargeId: subscription_instance.pinet_subscription_charge_id,
         subscriptionInstanceItemId: subscription_instance_item.id,
-        amount: subscription_instance_item.total_amount.to_f,
+        amount: subscription_instance_item.fee_amount.to_f,
         pinetIdToken: customer.pinet_id_token,
         currencyCode: customer.currency,
         description: plan(subscription_instance).description,
