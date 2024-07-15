@@ -6,6 +6,7 @@ module V1
       {
         lago_id: model.id,
         subscription_instance_id: model.subscription_instance_id,
+        contract_status: model.contract_status,
         fee_amount: model.fee_amount,
         charge_type: model.charge_type,
         code: model.code,
