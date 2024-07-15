@@ -2,7 +2,6 @@
 
 module SubscriptionInstances
   class CreateJob < ApplicationJob
-    include SubscriptionInstances::Helper
     queue_as 'billing'
 
     def perform(subscription)
@@ -16,7 +15,7 @@ module SubscriptionInstances
 
         result.raise_if_error!
 
-        if should_create_subscription_charge?(result)
+        if result.subscription_instance.present? && result.subscription_instance_item.present?
           SubscriptionCharges::CreateService.call(
             subscription_instance: result.subscription_instance,
             subscription_instance_item: result.subscription_instance_item

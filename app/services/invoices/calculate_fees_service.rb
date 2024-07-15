@@ -36,13 +36,13 @@ module Invoices
             charges_duration: date_service.charges_duration_in_days,
           }
 
-          subscription_fee = create_subscription_fee(subscription, boundaries) if should_create_subscription_fee?(subscription)
-          charges_fees = create_charges_fees(subscription, boundaries) if should_create_charge_fees?(subscription)
+          create_subscription_fee(subscription, boundaries) if should_create_subscription_fee?(subscription)
+          create_charges_fees(subscription, boundaries) if should_create_charge_fees?(subscription)
           if should_create_minimum_commitment_true_up_fee?(invoice_subscription)
             create_minimum_commitment_true_up_fee(invoice_subscription)
           end
 
-          handle_subscription_instance_finalization(invoice_subscription, subscription_fee, charges_fees)
+          handle_subscription_instance_finalization(invoice_subscription) if subscription.plan.pay_in_advance?
         end
 
         invoice.fees_amount_cents = invoice.fees.sum(:amount_cents)
@@ -92,8 +92,6 @@ module Invoices
     def create_subscription_fee(subscription, boundaries)
       fee_result = Fees::SubscriptionService.new(invoice:, subscription:, boundaries:).create
       fee_result.raise_if_error!
-
-      fee_result.fee
     end
 
     def charge_boundaries_valid?(boundaries)
@@ -103,7 +101,6 @@ module Invoices
 
     def create_charges_fees(subscription, boundaries)
       return unless charge_boundaries_valid?(boundaries)
-      charges_fees = []
       subscription
         .plan
         .charges
@@ -117,10 +114,7 @@ module Invoices
 
           fee_result = Fees::ChargeService.new(invoice:, charge:, subscription:, boundaries:).create
           fee_result.raise_if_error!
-          charges_fees += fee_result.fees
         end
-
-      charges_fees
     end
 
     def should_not_create_charge_fee?(charge, subscription)
@@ -277,7 +271,7 @@ module Invoices
       (invoice.draft? || invoice.voided?) && context != :finalize
     end
 
-    def handle_subscription_instance_finalization(invoice_subscription, subscription_fee, charges_fees)
+    def handle_subscription_instance_finalization(invoice_subscription)
       subscription = invoice_subscription.subscription
       # TODO: handle case when delete customer or plan
       return if subscription.customer.discarded? || subscription.plan.pending_deletion
@@ -285,7 +279,7 @@ module Invoices
       current_subscription_instance = get_current_subscription_instance(invoice_subscription)
 
       if current_subscription_instance&.active? && should_finalize_subscription_instance?(invoice_subscription)
-        finalize_current_subscription_instance(current_subscription_instance, subscription_fee, charges_fees)
+        finalize_current_subscription_instance(current_subscription_instance)
       end
 
       if current_subscription_instance && should_transition_to_new_period?(invoice_subscription)
@@ -319,12 +313,8 @@ module Invoices
         invoice_subscription.subscription.active?
     end
 
-    def finalize_current_subscription_instance(subscription_instance, subscription_fee, charges_fees)
-      SubscriptionInstances::FinalizeJob.perform_later(
-        subscription_instance:,
-        subscription_fee:,
-        charges_fees:
-      )
+    def finalize_current_subscription_instance(subscription_instance)
+      SubscriptionInstances::FinalizeJob.perform_later(subscription_instance:)
     end
 
     def transition_to_new_period(subscription, timestamp)

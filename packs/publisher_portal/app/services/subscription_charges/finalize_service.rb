@@ -4,9 +4,8 @@ module SubscriptionCharges
   class FinalizeService < BaseService
     include ServiceHelper
 
-    def initialize(subscription_instance:, subscription_instance_items: [])
+    def initialize(subscription_instance:)
       @subscription_instance = subscription_instance
-      @subscription_instance_items = subscription_instance_items
 
       super
     end
@@ -22,21 +21,14 @@ module SubscriptionCharges
         pinetIdToken: customer.pinet_id_token,
       }
 
+      Rails.logger.info("Subcription charge finalization payload: #{payload}")
       finalize_result = stub.finalize_subscription_charge(Revenue::FinalizeSubscriptionChargeReq.new(payload))
 
-      # TODO: depending on finalize api, we may need to handle different ways
-      # for now, i assume that the finalize api allow updating total mount of subscription charge
-      if finalize_result.success
-        ActiveRecord::Base.transaction do
-          subscription_instance_items.each do |item|
-            item.approve!
-          end
-        end
-
-        finalize_subscription_instance
+      if finalize_result&.status == "SUBSCRIPTION_CHARGE_CONTRACT_STATUS_APPROVED"
+        subscription_instance.finalize!
       end
-      Rails.logger.info("Subcription charge finalization payload: #{payload}")
-      stub.finalize_subscription_charge(Revenue::FinalizeSubscriptionChargeReq.new(payload))
+
+      Rails.logger.info("Subcription charge finalization result: #{finalize_result}")
 
       result
     rescue GRPC::BadStatus => e
@@ -45,18 +37,6 @@ module SubscriptionCharges
 
     private
 
-    attr_reader :subscription_instance, :subscription_instance_items
-
-    def total_amount
-      subscription_instance_items.sum(&:fee_amount)
-    end
-
-    def finalize_subscription_instance
-      SubscriptionInstances::IncreaseTotalValueService.call(
-        subscription_instance: subscription_instance,
-        fee_amount: total_amount
-      )
-      subscription_instance.finalize!
-    end
+    attr_reader :subscription_instance
   end
 end
