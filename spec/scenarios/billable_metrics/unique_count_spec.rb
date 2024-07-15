@@ -9,7 +9,7 @@ describe 'Aggregation - Unique Count Scenarios', :scenarios, type: :request, tra
   let(:plan) { create(:plan, organization:, amount_cents: 0) }
   let(:billable_metric) { create(:unique_count_billable_metric, :recurring, organization:) }
   let(:charge) do
-    create(:standard_charge, plan:, billable_metric:, properties: { amount: '1', grouped_by: %w[key_1 key_2 key_3] })
+    create(:standard_charge, plan:, billable_metric:, properties: {amount: '1', grouped_by: %w[key_1 key_2 key_3]})
   end
 
   before { charge }
@@ -109,6 +109,7 @@ describe 'Aggregation - Unique Count Scenarios', :scenarios, type: :request, tra
             code: billable_metric.code,
             transaction_id: SecureRandom.uuid,
             external_subscription_id: subscription.external_id,
+            timestamp: Time.zone.parse('2024-02-01T01:00:00').to_f,
             properties: {
               'item_id' => '001',
               'operation_type' => 'remove',
@@ -129,6 +130,7 @@ describe 'Aggregation - Unique Count Scenarios', :scenarios, type: :request, tra
             code: billable_metric.code,
             transaction_id: SecureRandom.uuid,
             external_subscription_id: subscription.external_id,
+            timestamp: Time.zone.parse('2024-02-02T01:00:00').to_f,
             properties: {
               'item_id' => '001',
               'operation_type' => 'add',
@@ -173,6 +175,7 @@ describe 'Aggregation - Unique Count Scenarios', :scenarios, type: :request, tra
             code: billable_metric.code,
             transaction_id: SecureRandom.uuid,
             external_subscription_id: subscription.external_id,
+            timestamp: Time.zone.parse('2024-02-03T01:00:00').to_f,
             properties: {
               'item_id' => '001',
               'operation_type' => 'remove',
@@ -223,7 +226,7 @@ describe 'Aggregation - Unique Count Scenarios', :scenarios, type: :request, tra
             code: billable_metric.code,
             transaction_id: SecureRandom.uuid,
             external_subscription_id: subscription.external_id,
-            properties: { 'item_id' => 'seat_1' },
+            properties: {'item_id' => 'seat_1'},
           },
         )
 
