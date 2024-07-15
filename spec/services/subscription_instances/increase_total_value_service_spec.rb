@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe SubscriptionInstances::IncreaseTotalValueService, type: :service do
   let(:initial_total_amount) { 100 }
   let(:fee_amount) { 50 }
-  let(:subscription_instance) { create(:subscription_instance, total_amount: initial_total_amount, version_number: 1) }
+  let(:subscription_instance) { create(:subscription_instance, total_amount: initial_total_amount) }
   let(:service) { described_class.new(subscription_instance:, fee_amount:) }
 
   describe '#call' do
@@ -16,7 +16,6 @@ RSpec.describe SubscriptionInstances::IncreaseTotalValueService, type: :service 
         result = service.call
 
         expect(result.subscription_instance.total_amount).to eq(initial_total_amount + fee_amount)
-        expect(result.subscription_instance.version_number).to eq(2)
       end
 
       it 'updates total_amount correctly with concurrent threads' do

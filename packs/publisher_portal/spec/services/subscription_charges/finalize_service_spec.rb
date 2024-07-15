@@ -28,10 +28,10 @@ RSpec.describe SubscriptionCharges::FinalizeService do
     it 'calls the finalize_subscription_charge method on the stub with the correct arguments' do
       expected_request = Revenue::FinalizeSubscriptionChargeReq.new(
         subscriptionChargeId: sub_instance.pinet_subscription_charge_id,
-        versionNumber: sub_instance.version_number,
         amount: sub_instance.total_amount.to_f,
         currencyCode: customer.currency,
         description: plan.description,
+        pinetIdToken: customer.pinet_id_token,
       )
 
       finalize_service.call

@@ -60,7 +60,7 @@ module V1
         Authorization::AuthorizeService.call(payload: auth_payload, client: avp_client)
       end
 
-      def policy_store_id
+      def policy_store
         @policy_store ||= PolicyStore.find_by(organization_id: current_organization.id)
       end
 
