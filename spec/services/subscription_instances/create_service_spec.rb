@@ -28,7 +28,7 @@ RSpec.describe SubscriptionInstances::CreateService, type: :service do
           expect(subscription_instance_items.count).to eq(1)
 
           expect(subscription_instance_items.first.fee_amount).to eq(fee_amount)
-          expect(subscription_instance.total_amount).to eq(fee_amount)
+          expect(subscription_instance.total_amount).to eq(0)
         end
       end
     end

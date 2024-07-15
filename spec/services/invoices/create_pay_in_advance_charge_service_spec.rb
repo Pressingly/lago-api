@@ -255,10 +255,17 @@ RSpec.describe Invoices::CreatePayInAdvanceChargeService, type: :service do
     end
 
     context 'when subscription_instance is update' do
+      let(:stub) { instance_double(Revenue::RevenueGrpcService::Stub) }
+
+      before do
+        allow(Revenue::RevenueGrpcService::Stub).to receive(:new).and_return(stub)
+        allow(stub).to receive(:update_subscription_charge).and_return(OpenStruct.new(status: 'approved'))
+
+        allow(SubscriptionCharges::UpdateService).to receive(:call).and_call_original
+      end
+
       it 'its total_value a new subscription_instance_item and update subscription_charge' do
         create(:subscription_instance, subscription: subscription)
-        allow(Revenue::RevenueGrpcService::Stub).to receive(:new).and_return(stub)
-        allow(stub).to receive(:update_subscription_charge)
 
         invoice_service.call
 

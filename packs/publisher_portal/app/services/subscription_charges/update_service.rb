@@ -4,11 +4,12 @@ module SubscriptionCharges
   class UpdateService < BaseService
     include ServiceHelper
 
-    def initialize(subscription_instance:)
+    def initialize(subscription_instance:, subscription_instance_item:)
       @subscription_instance = subscription_instance
+      @subscription_instance_item = subscription_instance_item
     end
 
-    attr_reader :subscription_instance
+    attr_reader :subscription_instance, :subscription_instance_item
 
     def call
       customer = subscription_instance.subscription.customer
@@ -23,9 +24,27 @@ module SubscriptionCharges
 
       Rails.logger.info("Subcription charge update payload: #{payload}")
 
-      stub.update_subscription_charge(Revenue::UpdateSubscriptionChargeReq.new(payload))
+      update_subscription_charge_result = stub.update_subscription_charge(Revenue::UpdateSubscriptionChargeReq.new(payload))
+
+      if update_subscription_charge_result.status == "approved"
+        subscription_instance_item.approve!
+        update_subscription_instance_total_amount(subscription_instance_item.fee_amount)
+      elsif update_subscription_charge_result.status == "rejected"
+        subscription_instance_item.reject!
+      end
     rescue GRPC::BadStatus => e
       raise StandardError, "Error updating subscription charge: #{e.message}"
+    end
+
+    private
+
+    def update_subscription_instance_total_amount(fee_amount)
+      return unless fee_amount.positive?
+
+      SubscriptionInstances::IncreaseTotalValueService.call(
+        subscription_instance:,
+        fee_amount:
+      ).raise_if_error!
     end
   end
 end

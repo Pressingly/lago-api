@@ -23,7 +23,13 @@ module SubscriptionCharges
       }
 
       Rails.logger.info("Subcription charge finalization payload: #{payload}")
-      stub.finalize_subscription_charge(Revenue::FinalizeSubscriptionChargeReq.new(payload))
+      finalize_result = stub.finalize_subscription_charge(Revenue::FinalizeSubscriptionChargeReq.new(payload))
+
+      if finalize_result&.status == "SUBSCRIPTION_CHARGE_CONTRACT_STATUS_APPROVED"
+        subscription_instance.finalize!
+      end
+
+      Rails.logger.info("Subcription charge finalization result: #{finalize_result}")
 
       result
     rescue GRPC::BadStatus => e
