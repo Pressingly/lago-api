@@ -12,7 +12,7 @@ RSpec.describe V1::Entitlement::AuthorizationController, type: :request do
     let(:subscription) { create(:subscription, plan: plan, customer_id: customer.id) }
     let(:billable_metric) { create(:billable_metric, organization: organization) }
     let(:charge) { create(:standard_charge, plan: plan, billable_metric: billable_metric) }
-    let(:policy_store) { create(:policy_store) }
+    let(:policy_store) { create(:policy_store, organization_id: organization.id) }
     let(:policy_store_id) { policy_store.id }
     let(:headers) do
       {

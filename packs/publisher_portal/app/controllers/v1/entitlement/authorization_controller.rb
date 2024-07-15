@@ -15,6 +15,11 @@ module V1
         customer_error = check_customer_errors
         return render(json: customer_error) if customer_error
 
+        # Check if policy store exists
+        unless policy_store
+          return render(json: failure_response(code: 404, message: 'No policy store found'), status: :not_found)
+        end
+
         payload = read_payload
 
         authorized_result = authorize(payload)
@@ -51,12 +56,12 @@ module V1
           region: ENV.fetch('AWS_REGION', nil),
           credentials: Aws::Credentials.new(ENV.fetch('AWS_ACCESS_KEY_ID', nil), ENV.fetch('AWS_SECRET_ACCESS_KEY', nil))
         })
-        auth_payload = EntitlementAdapter::ConverterService.call(payload: payload, policy_store_id: policy_store_id)
+        auth_payload = EntitlementAdapter::ConverterService.call(payload: payload, policy_store_id: policy_store.id)
         Authorization::AuthorizeService.call(payload: auth_payload, client: avp_client)
       end
 
       def policy_store_id
-        ENV['AUTHENTICATION_POLICY_STORE_ID']
+        @policy_store ||= PolicyStore.find_by(organization_id: current_organization.id)
       end
 
       def failure_response(code: 401, message: "Unauthorized", extra: {})
