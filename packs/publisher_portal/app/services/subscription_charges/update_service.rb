@@ -16,7 +16,7 @@ module SubscriptionCharges
       payload = {
         subscriptionChargeId: subscription_instance.pinet_subscription_charge_id,
         subscriptionInstanceItemId: subscription_instance_item.id,
-        amount: subscription_instance.total_amount.to_f,
+        amount: subscription_instance_item.total_amount.to_f,
         pinetIdToken: customer.pinet_id_token,
         currencyCode: customer.currency,
         description: plan(subscription_instance).description,
@@ -26,10 +26,10 @@ module SubscriptionCharges
 
       update_subscription_charge_result = stub.update_subscription_charge(Revenue::UpdateSubscriptionChargeReq.new(payload))
 
-      if update_subscription_charge_result&.status == "SUBSCRIPTION_CHARGE_CONTRACT_STATUS_APPROVED"
+      if update_subscription_charge_result&.status == :SUBSCRIPTION_CHARGE_CONTRACT_STATUS_APPROVED
         subscription_instance_item.approve!
         update_subscription_instance_total_amount(subscription_instance_item.fee_amount)
-      elsif update_subscription_charge_result&.status == "SUBSCRIPTION_CHARGE_CONTRACT_STATUS_REJECTED"
+      elsif update_subscription_charge_result&.status == :SUBSCRIPTION_CHARGE_CONTRACT_STATUS_REJECTED
         subscription_instance_item.reject!
       end
     rescue GRPC::BadStatus => e
