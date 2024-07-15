@@ -26,10 +26,10 @@ module SubscriptionCharges
 
       update_subscription_charge_result = stub.update_subscription_charge(Revenue::UpdateSubscriptionChargeReq.new(payload))
 
-      if update_subscription_charge_result.status == "approved"
+      if update_subscription_charge_result&.status == "SUBSCRIPTION_CHARGE_CONTRACT_STATUS_APPROVED"
         subscription_instance_item.approve!
         update_subscription_instance_total_amount(subscription_instance_item.fee_amount)
-      elsif update_subscription_charge_result.status == "rejected"
+      elsif update_subscription_charge_result&.status == "SUBSCRIPTION_CHARGE_CONTRACT_STATUS_REJECTED"
         subscription_instance_item.reject!
       end
     rescue GRPC::BadStatus => e
