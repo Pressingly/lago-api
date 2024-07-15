@@ -15,7 +15,6 @@ module SubscriptionInstances
       ActiveRecord::Base.transaction do
         subscription_instance.lock!
         subscription_instance.total_amount += fee_amount
-        subscription_instance.version_number += 1
         subscription_instance.save!
 
         result.subscription_instance = subscription_instance.reload
