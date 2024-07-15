@@ -4,7 +4,7 @@ require 'aws-sdk-verifiedpermissions'
 
 module V1
   module Entitlement
-    class AuthorizationController < ApplicationController
+    class AuthorizationController < Api::BaseController
       before_action :set_customer
       def index
         # TODO: refactor AuthorizeValidator to include customer validation
