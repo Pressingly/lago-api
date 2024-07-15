@@ -7,6 +7,7 @@ module V1
     class AuthorizationController < Api::BaseController
       before_action :set_customer
       def index
+        puts "index:"
         # TODO: refactor AuthorizeValidator to include customer validation
         request_params_valid = Authorization::AuthorizeValidator.new(authorization_params).valid?
         return render(json: failure_response(code: 422, message: "Request payload error")) unless request_params_valid
@@ -24,6 +25,7 @@ module V1
 
         authorized_result = authorize(payload)
         unless authorized_result[:is_authorized]
+          puts "authorized_result"
           return render(json: failure_response(message: "Your subscriptions are expired"))
         end
 
@@ -52,10 +54,12 @@ module V1
       end
 
       def authorize(payload)
+        puts "authorize"
         avp_client = Aws::VerifiedPermissions::Client.new({
           region: ENV.fetch('AWS_REGION', nil),
           credentials: Aws::Credentials.new(ENV.fetch('AWS_ACCESS_KEY_ID', nil), ENV.fetch('AWS_SECRET_ACCESS_KEY', nil))
         })
+        puts "hit authorize"
         auth_payload = EntitlementAdapter::ConverterService.call(payload: payload, policy_store_id: policy_store.id)
         Authorization::AuthorizeService.call(payload: auth_payload, client: avp_client)
       end
