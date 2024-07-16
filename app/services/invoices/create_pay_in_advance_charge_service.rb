@@ -158,20 +158,20 @@ module Invoices
 
       Rails.logger.info("fee_amount: #{fee_amount.inspect}")
 
-      ActiveRecord::Base.transaction do
-        subscription_instance_item_result = SubscriptionInstanceItems::CreateService.call(
-          subscription_instance: current_subscription_instance,
-          fee_amount:,
-          charge_type: SubscriptionInstanceItem.charge_types[:usage_charge],
-          code: event.code
-        )
-        subscription_instance_item_result.raise_if_error!
+      # ActiveRecord::Base.transaction do
+      subscription_instance_item_result = SubscriptionInstanceItems::CreateService.call(
+        subscription_instance: current_subscription_instance,
+        fee_amount:,
+        charge_type: SubscriptionInstanceItem.charge_types[:usage_charge],
+        code: event.code
+      )
+      subscription_instance_item_result.raise_if_error!
 
-        SubscriptionCharges::UpdateService.call(
-          subscription_instance: current_subscription_instance,
-          subscription_instance_item: subscription_instance_item_result.subscription_instance_item
-        )
-      end
+      SubscriptionCharges::UpdateService.call(
+        subscription_instance: current_subscription_instance,
+        subscription_instance_item: subscription_instance_item_result.subscription_instance_item
+      )
+      # end
     end
 
     def current_subscription_instance
