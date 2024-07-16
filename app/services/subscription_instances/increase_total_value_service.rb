@@ -13,7 +13,7 @@ module SubscriptionInstances
       return unless fee_amount.positive?
 
       ActiveRecord::Base.transaction do
-        subscription_instance.lock!
+        # subscription_instance.lock!
         subscription_instance.total_amount += fee_amount
         subscription_instance.save!
 
