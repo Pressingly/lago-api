@@ -26,15 +26,10 @@ module Authorization
 
       if authorized_resp.decision == 'ALLOW'
         best_plan = select_the_best_plan(plans)
-        external_customer_id = payload[:principal][:entity_id]
-        customer = Customer.find_by(external_id: external_customer_id)
-        best_plan[:subscription_external_id] = subscription_external_id(best_plan["id"], customer.id)
-
         resp[:subscription_plan] = best_plan
       end
 
       Rails.logger.info("AVP result: #{authorized_resp.inspect}")
-      Rails.logger.info("AuthorizeService response: #{resp.inspect}")
 
       resp
     end
@@ -60,12 +55,6 @@ module Authorization
 
     def select_the_best_plan(plans)
       plans.first
-    end
-
-    def subscription_external_id(plan_id, customer_id)
-      plan = Plan.find_by(id: plan_id)
-      sub = plan.subscriptions.find_by(customer_id: customer_id)
-      sub.external_id
     end
   end
 end
