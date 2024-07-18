@@ -33,7 +33,7 @@ RSpec.describe Events::Sync::PostProcessSyncService, type: :service do
   describe '#call' do
     before do
       allow(Fees::CreatePayInAdvanceJob).to receive(:perform_now)
-      allow(Invoices::CreatePayInAdvanceChargeJob).to receive(:perform_now)
+      allow(Invoices::CreatePayInAdvanceChargeService).to receive(:call)
     end
 
     context 'when event matches an pay_in_advance charge that is not invoiceable' do
@@ -82,7 +82,7 @@ RSpec.describe Events::Sync::PostProcessSyncService, type: :service do
 
       it 'triggers a job to create the pay_in_advance charge invoice immediately' do
         process_service.call
-        expect(Invoices::CreatePayInAdvanceChargeJob).to have_received(:perform_now)
+        expect(Invoices::CreatePayInAdvanceChargeService).to have_received(:call)
       end
 
       context 'when charge is not invoiceable' do
@@ -90,7 +90,7 @@ RSpec.describe Events::Sync::PostProcessSyncService, type: :service do
 
         it 'does not trigger a job to create the pay_in_advance charge invoice' do
           process_service.call
-          expect(Invoices::CreatePayInAdvanceChargeJob).not_to have_received(:perform_now)
+          expect(Invoices::CreatePayInAdvanceChargeService).not_to have_received(:call)
         end
       end
 
@@ -99,7 +99,7 @@ RSpec.describe Events::Sync::PostProcessSyncService, type: :service do
 
         it 'triggers a job for each charge immediately' do
           process_service.call
-          expect(Invoices::CreatePayInAdvanceChargeJob).to have_received(:perform_now).twice
+          expect(Invoices::CreatePayInAdvanceChargeService).to have_received(:call).twice
         end
       end
 
@@ -108,7 +108,7 @@ RSpec.describe Events::Sync::PostProcessSyncService, type: :service do
 
         it 'triggers a job to perform immediately' do
           process_service.call
-          expect(Invoices::CreatePayInAdvanceChargeJob).to have_received(:perform_now)
+          expect(Invoices::CreatePayInAdvanceChargeService).to have_received(:call)
         end
       end
 
@@ -117,7 +117,7 @@ RSpec.describe Events::Sync::PostProcessSyncService, type: :service do
 
         it 'triggers a job' do
           process_service.call
-          expect(Invoices::CreatePayInAdvanceChargeJob).not_to have_received(:perform_now)
+          expect(Invoices::CreatePayInAdvanceChargeService).not_to have_received(:call)
         end
       end
     end
