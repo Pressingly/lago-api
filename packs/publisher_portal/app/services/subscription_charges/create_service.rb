@@ -19,19 +19,19 @@ module SubscriptionCharges
       payload = {
         amount: subscription_instance_item.fee_amount.to_f,
         currencyCode: customer.currency,
-        versionNumber: subscription_instance.version_number,
         description: plan.description,
         pinetIdToken: customer.pinet_id_token,
         subscriptionInstanceId: subscription_instance.id,
+        subscriptionInstanceItemId: subscription_instance_item.id,
       }
 
       Rails.logger.info("Subcription charge creation payload: #{payload}")
       subscription_charge_result = stub.create_subscription_charge(Revenue::CreateSubscriptionChargeReq.new(payload))
       # TODO: use right status code
-      if subscription_charge_result&.status == "approved"
+      if subscription_charge_result&.status == :SUBSCRIPTION_CHARGE_CONTRACT_STATUS_APPROVED
         subscription_instance_item.approve!
         update_subscription_instance_total_amount(subscription_instance_item.fee_amount)
-      elsif subscription_charge_result&.status == "rejected"
+      elsif subscription_charge_result&.status == :SUBSCRIPTION_CHARGE_CONTRACT_STATUS_REJECTED
         subscription_instance_item.reject!
       end
 

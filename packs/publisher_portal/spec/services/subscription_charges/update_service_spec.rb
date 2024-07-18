@@ -28,9 +28,11 @@ RSpec.describe SubscriptionCharges::UpdateService do
     it 'calls the update_subscription_charge method on the stub with the correct arguments' do
       expected_request = Revenue::UpdateSubscriptionChargeReq.new(
         amount: sub_instance.total_amount.to_f,
-        versionNumber: sub_instance.version_number,
         description: plan.description,
         subscriptionChargeId: sub_instance.pinet_subscription_charge_id,
+        subscriptionInstanceItemId: subscription_instance_item.id,
+        pinetIdToken: customer.pinet_id_token,
+        currencyCode: customer.currency,
       )
 
       update_service.call

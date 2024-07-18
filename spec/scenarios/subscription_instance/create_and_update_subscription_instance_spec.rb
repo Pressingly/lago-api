@@ -30,7 +30,7 @@ describe 'Create and update subscription instance Scenario', :scenarios, type: :
     allow(SubscriptionCharges::CreateService).to receive(:call).and_call_original
     allow(Revenue::RevenueGrpcService::Stub).to receive(:new).and_return(stub)
     # TODO: update return value to match the actual return value
-    allow(stub).to receive(:create_subscription_charge).and_return(OpenStruct.new(status: 'approved'))
+    allow(stub).to receive(:create_subscription_charge).and_return(OpenStruct.new(status: :SUBSCRIPTION_CHARGE_CONTRACT_STATUS_APPROVED))
   end
 
   context 'when creating a subscription' do

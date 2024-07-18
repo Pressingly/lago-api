@@ -32,8 +32,8 @@ describe 'Finalize Subscription Instance Scenario', :scenarios, type: :request d
     allow(Revenue::RevenueGrpcService::Stub).to receive(:new).and_return(stub)
 
     # TODO: update return value to match the actual return value
-    allow(stub).to receive(:create_subscription_charge).and_return(OpenStruct.new(status: 'approved'))
-    allow(stub).to receive(:finalize_subscription_charge).and_return(OpenStruct.new(status: 'SUBSCRIPTION_CHARGE_CONTRACT_STATUS_APPROVED'))
+    allow(stub).to receive(:create_subscription_charge).and_return(OpenStruct.new(status: :SUBSCRIPTION_CHARGE_CONTRACT_STATUS_APPROVED))
+    allow(stub).to receive(:finalize_subscription_charge).and_return(OpenStruct.new(status: :SUBSCRIPTION_CHARGE_CONTRACT_STATUS_APPROVED))
     allow(Utils::PdfGenerator).to receive(:new)
       .and_return(pdf_generator)
     allow(pdf_generator).to receive(:call)

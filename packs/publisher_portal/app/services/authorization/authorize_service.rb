@@ -39,13 +39,17 @@ module Authorization
     attr_reader :payload, :client
 
     def get_plans_by_policies(policies)
-      plans = Plan.where(id: AuthorizationPolicy.where(cedar_policy_id: policies).pluck(:plan_id))
+      policy_plan_mapping = AuthorizationPolicy.where(cedar_policy_id: policies).pluck(:cedar_policy_id, :plan_id).to_h
+      plans = Plan.where(id: policy_plan_mapping.values).index_by(&:id)
 
       return [] if plans.empty?
 
       result = []
       policies.each_with_index do |policy_id, index|
-        plan = plans[index].attributes
+        plan_id = policy_plan_mapping[policy_id]
+        next unless plan_id && plans[plan_id]
+
+        plan = plans[plan_id].attributes
         plan["policy_id"] = policy_id
         result << plan
       end

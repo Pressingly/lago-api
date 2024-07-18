@@ -19,7 +19,7 @@ module Events
         return unless processable_event
 
         charges.where(invoiceable: true).find_each do |charge|
-          Invoices::CreatePayInAdvanceChargeJob.perform_now(charge:, event:, timestamp: event.timestamp)
+          Invoices::CreatePayInAdvanceChargeService.call(charge:, event:, timestamp: event.timestamp, invoice: nil)
         end
       end
     end

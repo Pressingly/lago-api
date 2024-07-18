@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_07_01_034635) do
+ActiveRecord::Schema[7.0].define(version: 2024_07_12_123121) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -921,7 +921,6 @@ ActiveRecord::Schema[7.0].define(version: 2024_07_01_034635) do
     t.uuid "pinet_subscription_charge_id"
     t.decimal "total_amount", precision: 30, scale: 15, default: "0.0", null: false
     t.string "status", null: false
-    t.integer "version_number", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["subscription_id"], name: "index_subscription_instances_on_subscription_id"

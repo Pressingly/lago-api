@@ -35,6 +35,7 @@ module Invoices
 
         invoice.payment_status = invoice.total_amount_cents.positive? ? :pending : :succeeded
         invoice.finalized!
+        Rails.logger.info("Invoice: #{invoice}")
 
         increase_subscription_instance_total_value(invoice) if should_increase_subscription_instance_total_value?(invoice)
       end
@@ -155,20 +156,22 @@ module Invoices
       return unless current_subscription_instance
       fee_amount = invoice.fees_amount_cents.fdiv(invoice.fees_amount.currency.subunit_to_unit)
 
-      ActiveRecord::Base.transaction do
-        subscription_instance_item_result = SubscriptionInstanceItems::CreateService.call(
-          subscription_instance: current_subscription_instance,
-          fee_amount:,
-          charge_type: SubscriptionInstanceItem.charge_types[:usage_charge],
-          code: event.code
-        )
-        subscription_instance_item_result.raise_if_error!
+      Rails.logger.info("fee_amount: #{fee_amount.inspect}")
 
-        SubscriptionCharges::UpdateService.call(
-          subscription_instance: current_subscription_instance,
-          subscription_instance_item: subscription_instance_item_result.subscription_instance_item
-        )
-      end
+      # ActiveRecord::Base.transaction do
+      subscription_instance_item_result = SubscriptionInstanceItems::CreateService.call(
+        subscription_instance: current_subscription_instance,
+        fee_amount:,
+        charge_type: SubscriptionInstanceItem.charge_types[:usage_charge],
+        code: event.code
+      )
+      subscription_instance_item_result.raise_if_error!
+
+      SubscriptionCharges::UpdateService.call(
+        subscription_instance: current_subscription_instance,
+        subscription_instance_item: subscription_instance_item_result.subscription_instance_item
+      )
+      # end
     end
 
     def current_subscription_instance

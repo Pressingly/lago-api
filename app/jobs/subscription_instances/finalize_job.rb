@@ -5,9 +5,9 @@ module SubscriptionInstances
     queue_as 'billing'
 
     def perform(subscription_instance:)
-      ActiveRecord::Base.transaction do
-        SubscriptionCharges::FinalizeService.call(subscription_instance:)
-      end
+      # ActiveRecord::Base.transaction do
+      SubscriptionCharges::FinalizeService.call(subscription_instance:)
+      # end
     end
   end
 end

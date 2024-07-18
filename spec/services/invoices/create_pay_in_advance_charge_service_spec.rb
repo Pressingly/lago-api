@@ -259,7 +259,7 @@ RSpec.describe Invoices::CreatePayInAdvanceChargeService, type: :service do
 
       before do
         allow(Revenue::RevenueGrpcService::Stub).to receive(:new).and_return(stub)
-        allow(stub).to receive(:update_subscription_charge).and_return(OpenStruct.new(status: 'approved'))
+        allow(stub).to receive(:update_subscription_charge).and_return(OpenStruct.new(status: :SUBSCRIPTION_CHARGE_CONTRACT_STATUS_APPROVED))
 
         allow(SubscriptionCharges::UpdateService).to receive(:call).and_call_original
       end

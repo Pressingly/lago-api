@@ -4,7 +4,7 @@ require 'aws-sdk-verifiedpermissions'
 
 module V1
   module Entitlement
-    class AuthorizationController < ApplicationController
+    class AuthorizationController < Api::BaseController
       before_action :set_customer
       def index
         # TODO: refactor AuthorizeValidator to include customer validation
@@ -60,7 +60,7 @@ module V1
         Authorization::AuthorizeService.call(payload: auth_payload, client: avp_client)
       end
 
-      def policy_store_id
+      def policy_store
         @policy_store ||= PolicyStore.find_by(organization_id: current_organization.id)
       end
 
